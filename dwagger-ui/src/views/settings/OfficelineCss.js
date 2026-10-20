@@ -1,0 +1,222 @@
+export const resumecss = `
+.content-line {
+  height: 25px;
+  line-height: 25px;
+}
+.content-line-count {
+  height: 35px;
+  line-height: 35px;
+}
+.title {
+  margin-top: 25px;
+}
+.dwagger-description {
+ /*  width: 90%;
+  margin: 15px auto; */
+  margin-top: 5px;
+}
+.divider {
+  margin: 4px 0;
+}
+.divider-count {
+  margin: 8px 0;
+}
+.dwagger-document {
+  margin-top: 30px;
+}
+.api-tab {
+  margin-top: 15px;
+
+  .arco-tag {
+    height: 32px;
+    line-height: 32px;
+  }
+}
+.dwagger-menu-api-deprecated {
+  text-decoration: line-through;
+}
+
+.dwagger-api-title {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #616368;
+  height: 35px;
+  line-height: 35px;
+}
+.dwagger-api-row {
+  height: 45px;
+  line-height: 45px;
+}
+
+.dwagger-api-summary {
+  border-color: #49cc90;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 2px;
+  cursor: pointer;
+}
+.dwagger-api-summary-method {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 80px;
+  padding: 6px 15px;
+  text-align: center;
+  border-radius: 3px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+  font-family: Titillium Web, sans-serif;
+  color: #fff;
+}
+.dwagger-api-summary-path {
+  font-size: 14px;
+  display: flex;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 3 auto;
+  flex: 0 3 auto;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  word-break: break-all;
+  padding: 0 32px;
+}
+
+.dwagger-api-post {
+  border-color: #49cc90;
+  background: rgba(73, 204, 144, 0.1);
+}
+.dwagger-api-post .dwagger-api-summary-method {
+  background: #49cc90;
+}
+
+.dwagger-api-get {
+  border-color: #61affe;
+  background: rgba(97, 175, 254, 0.1);
+}
+.dwagger-api-get .dwagger-api-summary-method {
+  background: #61affe;
+}
+.dwagger-api-head {
+  border-color: #9012fe;
+  background: rgba(144, 18, 254, 0.1);
+}
+.dwagger-api-head .dwagger-api-summary-method {
+  background: #9012fe;
+}
+.dwagger-api-put {
+  border-color: #fca130;
+  background: rgba(252, 161, 48, 0.1);
+}
+.dwagger-api-put .dwagger-api-summary-method {
+  background: #fca130;
+}
+.dwagger-api-delete {
+  border-color: #f93e3e;
+  background: rgba(249, 62, 62, 0.1);
+}
+.dwagger-api-delete .dwagger-api-summary-method {
+  background: #f93e3e;
+}
+.dwagger-api-options {
+  border-color: #0d5aa7;
+  background: rgba(13, 90, 167, 0.1);
+}
+.dwagger-api-options .dwagger-api-summary-method {
+  background: #0d5aa7;
+}
+.dwagger-api-patch {
+  border-color: #50e3c2;
+  background: rgba(80, 227, 194, 0.1);
+}
+.dwagger-api-patch .dwagger-api-summary-method {
+  background: #50e3c2;
+}
+#dwaggerDoc ul{
+  padding-left: 10px;
+  list-style: none;
+  counter-reset: ordered;
+}
+
+#dwaggerDoc ul li:before {
+  counter-increment: ordered;
+  content: counters(ordered,".")" ";
+  color:#1890ff;
+}
+.api-basic {
+  padding: 11px;
+}
+.api-basic-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+.api-basic-body {
+  font-size: 14px;
+  font-family: -webkit-body;
+}
+.dwagger-api-editor-show {
+  margin: 15px 0;
+  font: 100 12px/18px monaco, andale mono, courier new;
+  padding: 10px 12px;
+  border: #ccc 1px solid;
+  border-left-width: 4px;
+  background-color: #fefefe;
+  box-shadow: 0 0 4px #eee;
+  word-break: break-all;
+  word-wrap: break-word;
+  color: #444;
+}
+.dwagger-api-editor-show .string { color: green; }        /*字符串的样式*/
+.dwagger-api-editor-show .number { color: darkorange; }    /*数字的样式*/
+.dwagger-api-editor-show .boolean { color: blue; }        /*布尔型数据的样式*/
+.dwagger-api-editor-show .null { color: magenta; }        /*null值的样式*/
+.dwagger-api-editor-show .key { color: red; }            /*key值的样式*/
+.api-description {
+  border-left: 4px solid #ddd;
+  line-height: 30px;
+}
+.api-body-desc {
+  padding: 10px;
+  min-height: 35px;
+  box-sizing: border-box;
+  border: 1px solid #e8e8e8;
+}
+.arco-card-body {
+  padding: 5px;
+}
+.api-title {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  height: 30px;
+  line-height: 30px;
+  border-left: 4px solid #00ab6d;
+  text-indent: 8px;
+}
+.content-line {
+  height: 25px;
+  line-height: 25px;
+}
+.content-line-count {
+  height: 35px;
+  line-height: 35px;
+}
+.divider {
+  margin: 4px 0;
+}
+.dwagger-doc-m{
+  position: fixed;
+  height: 500px;
+  width: 400px;
+  border: 1px solid #b7b4b4;
+  overflow-y: auto;
+  right: 12px;
+  top: 40px;
+  z-index: 9999;
+  background: #fcfafa;
+}
+`

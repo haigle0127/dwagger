@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>dwagger</artifactId>
+        <groupId>cn.haigle.dwagger</groupId>
+        <version>0.0.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>dwagger-openapi3-spring-boot-starter</artifactId>
+    <name>dwagger-openapi3-spring-boot-starter</name>
+    <description>Spring Boot autoconfigure</description>
+    <dependencies>
+        <!-- Compile dependencies -->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-autoconfigure</artifactId>-->
+<!--            <version>${dwagger-spring-boot.version}</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>${dwagger-spring-boot.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.haigle.dwagger</groupId>
+            <artifactId>dwagger-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.haigle.dwagger</groupId>
+            <artifactId>dwagger-openapi3-ui</artifactId>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-web</artifactId>-->
+<!--            <version>${dwagger-spring.version}</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework</groupId>-->
+<!--            <artifactId>spring-webmvc</artifactId>-->
+<!--            <version>${dwagger-spring.version}</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+        <!--springdoc-openapi的Jar包引用-->
+<!--        <dependency>-->
+<!--            <groupId>org.springdoc</groupId>-->
+<!--            <artifactId>springdoc-openapi-common</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.springdoc</groupId>-->
+<!--            <artifactId>springdoc-openapi-webflux-core</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.springdoc</groupId>-->
+<!--            <artifactId>springdoc-openapi-webmvc-core</artifactId>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>io.swagger.core.v3</groupId>-->
+<!--            <artifactId>swagger-annotations</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>io.swagger.core.v3</groupId>-->
+<!--            <artifactId>swagger-models</artifactId>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+
+</project>

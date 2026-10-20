@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>cn.haigle.dwagger</groupId>
+        <artifactId>dwagger</artifactId>
+        <version>0.0.1</version>
+    </parent>
+
+    <artifactId>dwagger-openapi3-jakarta-spring-boot-starter</artifactId>
+
+    <properties>
+        <dwagger-java.version>17</dwagger-java.version>
+        <dwagger-spring-boot3.version>4.1.1</dwagger-spring-boot3.version>
+
+        <dwagger-javassist.version>3.30.2-GA</dwagger-javassist.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <dwagger-skipTests>true</dwagger-skipTests>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>${dwagger-spring-boot3.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>cn.haigle.dwagger</groupId>
+            <artifactId>dwagger-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.haigle.dwagger</groupId>
+            <artifactId>dwagger-openapi3-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${dwagger-springdoc-openapi-jakarta.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+            <version>${dwagger-servlet-jakarta.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${dwagger-java.version}</source>
+                    <target>${dwagger-java.version}</target>
+                    <encoding>${dwagger-project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,59 @@
+@import "../../style/legacy-ant-vars.less";
+
+.headerSearch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+
+  /* 放大镜浮在搜索框内部右侧 */
+  .arco-icon-search {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    cursor: pointer;
+    font-size: 16px;
+    color: @text-color-secondary;
+
+    &:hover {
+      color: @primary-color;
+    }
+  }
+
+  /* 圆角浅底搜索框：高度写死，避免继承顶栏行高把输入框撑开 */
+  .input {
+    transition: width 0.3s;
+    width: 0;
+    background: transparent;
+    border-radius: 0;
+
+    .arco-select-view,
+    .arco-input-wrapper {
+      height: 36px;
+      padding: 0 36px 0 14px;
+      background: #f2f3f5;
+      border: none;
+      border-radius: 18px;
+      box-shadow: none;
+    }
+
+    .arco-input-wrapper {
+      background: transparent;
+    }
+
+    input {
+      height: 34px;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      line-height: 34px;
+      box-shadow: none !important;
+    }
+
+    &.show {
+      width: 220px;
+    }
+  }
+}
