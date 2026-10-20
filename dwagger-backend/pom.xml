@@ -17,6 +17,7 @@
     <description>dwagger是为Java
         MVC框架集成OpenAPI生成Api文档的增强解决方案。
     </description>
+    <url>https://github.com/haigle0127/dwagger</url>
     <developers>
         <developer>
             <id>haigle</id>
@@ -57,6 +58,12 @@
             <url>https://opensource.org/licenses/MIT</url>
         </license>
     </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/haigle0127/dwagger.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/haigle0127/dwagger.git</developerConnection>
+        <url>https://github.com/haigle0127/dwagger</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
