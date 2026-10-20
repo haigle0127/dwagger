@@ -1,0 +1,1014 @@
+@contentHeight: calc(100vh - 64px);
+@contentAllHeight: calc(100vh);
+@DebugContentBodyHeight: calc(100vh - 395px);
+@contentTabHeight: calc(100vh - 152px);
+/* ===== 主题配色 =====
+   主色、侧栏、页面底色统一走 CSS 变量，换配色只改这一段 */
+body {
+  --dwagger-primary: #4f46e5;
+  --dwagger-primary-light: #eef2ff;
+  --dwagger-sidebar-bg: #12141a;
+  --dwagger-sidebar-sub-bg: #0b0c10;
+  --dwagger-page-bg: #f4f5f7;
+  --dwagger-hero-start: #1e1b4b;
+  --dwagger-hero-end: #4f46e5;
+
+  /* Arco 主色阶梯：按钮、标签页、选中态、链接都读这里 */
+  --arcoblue-1: 238, 242, 255;
+  --arcoblue-2: 224, 231, 255;
+  --arcoblue-3: 199, 210, 254;
+  --arcoblue-4: 165, 180, 252;
+  --arcoblue-5: 129, 140, 248;
+  --arcoblue-6: 79, 70, 229;
+  --arcoblue-7: 67, 56, 202;
+  --arcoblue-8: 55, 48, 163;
+  --arcoblue-9: 49, 46, 129;
+  --arcoblue-10: 30, 27, 75;
+}
+
+@GlobalBackgroundColor: var(--dwagger-sidebar-bg);
+@GlobalSubMenuBackgroundColor: var(--dwagger-sidebar-sub-bg);
+@menu-collapsed-width: 70px;
+/* 主题色与中性色，与 Arco 调色板对齐 */
+@primary: var(--dwagger-primary);
+@primary-light: var(--dwagger-primary-light);
+@text-main: #1d2129;
+@text-sub: #4e5969;
+@page-bg: var(--dwagger-page-bg);
+
+.dwagger {
+  padding: 0px;
+}
+
+/* App 根节点的 a-spin 默认是 inline-block，会按内容最大宽度把整页撑出横向滚动 */
+.app-spin {
+  display: block;
+  width: 100%;
+}
+
+/* iconfont symbol 图标基础样式：
+   iconfont.js 里的 document.write 样式在 SPA 中不执行，
+   缺了这条 svg 会按默认 300x150 渲染被撑得巨大 */
+.svgfont {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+  vertical-align: -0.18em;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+
+/**
+* -----------------------------
+* 左侧菜单部分样式
+* ------------------------------
+*/
+
+/* 侧栏菜单容器：深色主题，菜单项样式见 AccordionMenu.vue */
+.dwagger-menu,
+.dwagger-menu-all {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: @GlobalBackgroundColor;
+}
+
+.dwagger-menu::-webkit-scrollbar,
+.dwagger-menu-all::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 6px;
+  height: 0.5px;
+}
+
+/* 深色底上滚动条用半透明白，避免浅灰条浮在上面 */
+.dwagger-menu::-webkit-scrollbar-thumb,
+.dwagger-menu-all::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.dwagger-menu::-webkit-scrollbar-track,
+.dwagger-menu-all::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background: transparent;
+}
+
+
+.dwagger-menu-api-deprecated {
+  text-decoration: line-through;
+}
+
+
+.dwagger-menu-line {
+  /* left: 10px;
+  position: absolute;
+  */
+  width: 65px;
+  display: inline-block;
+
+}
+
+.dwagger-menu-left-style {
+  //margin-left: -12px;
+}
+
+/**
+* -----------------------------
+* 覆盖antd部分样式
+* ------------------------------
+*/
+
+
+/* 侧栏顶部：展开态放分组下拉，折叠态放 logo，统一深色底 */
+.dwagger-logo,
+.dwagger-logo-data {
+  flex-shrink: 0;
+  overflow: hidden;
+  background: @GlobalBackgroundColor;
+}
+
+/* 折叠态只放 logo 图片，居中显示 */
+.dwagger-logo {
+  height: 56px;
+  line-height: 56px;
+  text-align: center;
+
+  img {
+    display: inline-block;
+    vertical-align: middle;
+    height: 32px;
+  }
+}
+
+/* 展开态放分组下拉框 */
+.dwagger-logo-data {
+  padding: 12px;
+}
+
+
+/**
+* -----------------------------
+* 顶部Header部分样式
+* ------------------------------
+*/
+/* 顶栏用 flex 排列：折叠按钮 | 标题 | 右侧操作区，天然垂直居中 */
+.dwagger-header-default {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  line-height: normal;
+}
+
+.dwagger-header-title {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: @text-main;
+
+  /* 标题过长时省略号，避免把右侧操作区挤走 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  /* 标题前的主色装饰竖条 */
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 16px;
+    margin-right: 10px;
+    border-radius: 2px;
+    background: @primary;
+    vertical-align: -2px;
+  }
+}
+
+
+/**
+* -----------------------------
+* tab选项卡部分样式
+* ------------------------------
+*/
+
+/* 顶层标签栏：Arco 原生 line 风格（文字 + 蓝色下划线），标题过长自动省略。
+   接口详情页内层还有一组竖排标签，所以这里全部用 > 子选择器，避免样式渗透 */
+.dwagger-tab {
+  background: transparent;
+
+  > .arco-tabs-nav {
+    padding: 0 12px;
+    /* 预留左右翻页箭头的位置：箭头出现前后标签的可视宽度保持一致，
+       Arco 才不会用旧的宽度把滚动量夹小 */
+    padding-right: 76px;
+    background: #fff;
+    font-size: 14px;
+
+    &:has(> .arco-tabs-nav-button) {
+      padding-right: 12px;
+    }
+
+    /* 标签栏底部的分隔细线 */
+    &::before {
+      background-color: #e5e6eb;
+    }
+
+    /* 保持 Arco 的 inline-block 布局，改成 flex 会让下划线定位错位 */
+    .arco-tabs-nav-tab-list {
+      line-height: 0;
+    }
+
+    .arco-tabs-tab {
+      display: inline-flex;
+      align-items: center;
+      height: 46px;
+      /* 标签之间固定间距，标签多时交给 Arco 横向滚动 */
+      margin: 0 0 0 32px;
+      padding: 0;
+      vertical-align: top;
+      color: @text-sub;
+      font-size: 14px;
+      line-height: normal;
+
+      &:first-child {
+        margin-left: 0;
+      }
+
+      &:hover {
+        color: @primary;
+      }
+    }
+
+    .arco-tabs-tab-title {
+      min-width: 0;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      /* 去掉 Arco 自带的悬停浅色底，保持纯净的文字标签 */
+      &::before {
+        display: none;
+      }
+    }
+
+    .arco-tabs-tab-active {
+      color: @primary;
+      font-weight: 500;
+    }
+
+    /* 激活标签下方的蓝色指示条 */
+    .arco-tabs-nav-ink {
+      height: 2px;
+      background-color: @primary;
+    }
+
+    /* 每个标签右侧常驻关闭按钮 */
+    .arco-tabs-tab-close-btn {
+      margin-left: 8px;
+      font-size: 12px;
+      color: #86909c;
+      flex-shrink: 0;
+
+      &:hover {
+        color: @text-main;
+      }
+    }
+
+    /* 标签放不下时 Arco 会显示左右翻页箭头：放大点击区域，去掉它自带的小圆底 */
+    .arco-tabs-nav-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+      height: 28px;
+      margin: 0;
+      border-radius: 6px;
+      transition: all 0.2s;
+
+      .arco-icon {
+        font-size: 16px;
+        color: @text-sub;
+      }
+
+      /* Arco 自带的圆形悬停底和下面的圆角矩形重复 */
+      .arco-icon-hover::before {
+        display: none;
+      }
+
+      &:hover {
+        background: #e5e6eb;
+
+        .arco-icon {
+          color: @primary;
+        }
+      }
+    }
+
+    .arco-tabs-nav-button-left {
+      margin-right: 6px;
+    }
+
+    .arco-tabs-nav-button-right {
+      margin-left: 6px;
+    }
+
+    .arco-tabs-nav-button-disabled {
+      background: transparent;
+
+      .arco-icon {
+        color: #c9cdd4;
+      }
+
+      &:hover {
+        background: transparent;
+
+        .arco-icon {
+          color: #c9cdd4;
+        }
+      }
+    }
+  }
+}
+
+/* 内容区紧贴标签栏，由各页面自己控制留白 */
+.dwagger-tab > .arco-tabs-content {
+  padding-top: 12px;
+}
+
+/**
+* -----------------------------
+* 内容部分样式
+* ------------------------------
+*/
+
+.dwagger-body-content {
+  overflow-y: auto;
+  height: @contentTabHeight;
+  min-height: 400px;
+}
+
+/*
+* 内容页滚动条
+*/
+.dwagger-body-content::-webkit-scrollbar {
+  /*滚动条整体样式*/
+  width: 8px;
+  /*高宽分别对应横竖滚动条的尺寸*/
+  height: 0.5px;
+}
+
+.dwagger-body-content::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 10px;
+  -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  background: #469aed;
+}
+
+.dwagger-body-content::-webkit-scrollbar-track {
+  /*滚动条里面轨道*/
+  -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  background: #fff;
+}
+
+
+.dwagger-router-view {
+  min-height: 480px;
+  margin: 5px 5px 0;
+}
+
+
+.dwagger-btn-danger {
+  color: #fff;
+  background-color: #d9534f;
+  border-color: #d43f3a;
+}
+
+.dwagger-btn-info {
+  color: #fff;
+  background-color: #269abc;
+  border-color: #1b6d85;
+}
+
+.dwagger-request-query {
+  color: #61affe;
+}
+
+.dwagger-request-body {
+  color: #0d5aa7;
+}
+
+.dwagger-request-formData {
+  color: #9012fe;
+}
+
+.dwagger-request-form {
+  color: #9012fe;
+}
+
+.dwagger-request-validate-jsr {
+  color: #10af88;
+  border-bottom: 1px dashed #10af88;
+}
+
+.dwagger-request-header {
+  color: #fca130;
+}
+
+.dwagger-request-path {
+  color: #49cc90;
+}
+
+.dwagger-api-copy-address {
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 100;
+  color: #0b0a0a;
+}
+
+.dwagger-api-title {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #616368;
+  height: 35px;
+  line-height: 35px;
+}
+
+.dwagger-api-row {
+  height: 45px;
+  line-height: 45px;
+}
+
+.dwagger-api-summary {
+  border-color: #49cc90;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.dwagger-api-summary-method {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 20px;
+  padding: 6px 15px;
+  text-align: center;
+  border-radius: 3px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+  font-family: Titillium Web, sans-serif;
+  color: #fff;
+}
+
+.dwagger-api-summary-path {
+  font-size: 14px;
+  display: flex;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 3 auto;
+  flex: 0 3 auto;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  word-break: break-all;
+  padding: 0 32px;
+}
+
+.dwagger-api-post {
+  border-color: #49cc90;
+  background: rgba(73, 204, 144, 0.1);
+
+  .dwagger-api-summary-method {
+    background: #49cc90;
+  }
+}
+
+.dwagger-api-get {
+  border-color: #61affe;
+  background: rgba(97, 175, 254, 0.1);
+
+  .dwagger-api-summary-method {
+    background: #61affe;
+  }
+}
+
+.dwagger-api-head {
+  border-color: #9012fe;
+  background: rgba(144, 18, 254, 0.1);
+
+  .dwagger-api-summary-method {
+    background: #9012fe;
+  }
+}
+
+.dwagger-api-put {
+  border-color: #fca130;
+  background: rgba(252, 161, 48, 0.1);
+
+  .dwagger-api-summary-method {
+    background: #fca130;
+  }
+}
+
+.dwagger-api-delete {
+  border-color: #f93e3e;
+  background: rgba(249, 62, 62, 0.1);
+
+  .dwagger-api-summary-method {
+    background: #f93e3e;
+  }
+}
+
+.dwagger-api-options {
+  border-color: #0d5aa7;
+  background: rgba(13, 90, 167, 0.1);
+
+  .dwagger-api-summary-method {
+    background: #0d5aa7;
+  }
+}
+
+.dwagger-api-patch {
+  border-color: #50e3c2;
+  background: rgba(80, 227, 194, 0.1);
+
+  .dwagger-api-summary-method {
+    background: #50e3c2;
+  }
+}
+
+
+/**Debug调试部分样式**/
+.dwagger-debug {
+  box-sizing: border-box;
+  margin: 20px auto;
+  /* 右侧留出和左侧一致的呼吸位，重置按钮不再贴着视口边缘 */
+  padding: 0 24px;
+  width: 100%;
+
+  /* arco-spin 默认 inline-block，会按最宽内容撑开导致整块和上方错位 */
+  > .arco-spin {
+    display: block;
+    width: 100%;
+  }
+
+  .spin-content {
+    width: 100%;
+  }
+}
+
+/* 请求行：方法、地址、按钮横向铺开 */
+.dwagger-debug-api-line {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+
+  /* 整行控件统一 36px 高，比默认的 32px 更舒展 */
+  .arco-input-wrapper,
+  .arco-select-view,
+  .arco-btn {
+    height: 36px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+}
+
+.dwagger-debug-method-select {
+  flex: none;
+  width: 110px;
+  font-weight: 600;
+}
+
+.dwagger-debug-url {
+  flex: 1;
+  min-width: 0;
+}
+
+.dwagger-api-send {
+  flex: none;
+  min-width: 110px;
+}
+
+/* 请求头数量：红色小圆点，嵌在标签文字前 */
+.dwagger-debug-param-count.arco-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  padding: 0 5px;
+  border: none;
+  border-radius: 9px;
+  background-color: #f53f3f;
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  vertical-align: middle;
+}
+
+.dwagger-debug-tabs {
+  margin: 16px 0 0;
+
+  /* 表格里的输入框略矮一档，742 高度下两行参数也不显臃肿 */
+  .arco-table-td .arco-input-wrapper,
+  .arco-table-td .arco-select-view {
+    height: 30px;
+  }
+
+  .arco-table-td .arco-table-cell {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  /* 操作列和表头一起右对齐，删除按钮贴齐表格右缘 */
+  .arco-table-th:last-child,
+  .arco-table-td:last-child {
+    text-align: right;
+  }
+
+  /* Arco 表头单元格是 flex 容器，text-align 推不动标题，需要让内容靠右 */
+  .arco-table-th:last-child .arco-table-cell {
+    justify-content: flex-end;
+    padding-right: 8px;
+  }
+
+  .arco-table-td:last-child .arco-table-cell {
+    padding-right: 8px;
+  }
+}
+
+/* 表格里的删除动作：文字按钮，红色悬停提示危险操作 */
+.dwagger-debug-row-action.arco-btn {
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 400;
+
+  &:hover {
+    background-color: #ffece8;
+  }
+}
+
+/* 调试区标签：和顶部标签栏同一套 line 风格，未选中也用正文色，不再发灰 */
+.dwagger-debug-tabs,
+.dwagger-debug-response {
+  /* 内容左缘和请求行对齐，只保留单元格自身的 16px 内边距 */
+  > .arco-tabs > .arco-tabs-content {
+    padding-left: 0;
+  }
+
+  /* 不需要滚动时收起箭头，标签文字不再被推离左缘 */
+  .arco-tabs-nav-button-disabled {
+    display: none;
+  }
+
+  .arco-tabs-nav::before {
+    background-color: #e5e6eb;
+  }
+
+  .arco-tabs-nav-type-line .arco-tabs-tab {
+    color: @text-main;
+    font-weight: 400;
+
+    &:hover {
+      color: @primary;
+
+      .arco-tabs-tab-title::before {
+        background-color: transparent;
+      }
+    }
+  }
+
+  .arco-tabs-nav-type-line .arco-tabs-tab-active,
+  .arco-tabs-nav-type-line .arco-tabs-tab-active:hover {
+    color: @primary;
+    font-weight: 500;
+  }
+
+  .arco-tabs-nav-type-line .arco-tabs-tab-disabled,
+  .arco-tabs-nav-type-line .arco-tabs-tab-disabled:hover {
+    color: #c9cdd4;
+    cursor: not-allowed;
+  }
+
+  .arco-tabs-nav-ink {
+    background-color: @primary;
+  }
+}
+
+/* 调试区表格与输入框：表头用更淡的灰，正文深色，输入框白底浅描边 */
+.dwagger-debug {
+  color: @text-main;
+
+  .arco-table-th {
+    background-color: #f7f8fa;
+    color: @text-main;
+    font-weight: 500;
+  }
+
+  .arco-table-td {
+    color: @text-main;
+  }
+
+  .arco-table-th,
+  .arco-table-td {
+    border-color: #e5e6eb;
+  }
+
+  .arco-input-wrapper,
+  .arco-textarea-wrapper {
+    background-color: #fff;
+    border-color: #e5e6eb;
+
+    &:hover {
+      background-color: #fff;
+      border-color: #c9cdd4;
+    }
+  }
+
+  .arco-table .arco-select-view {
+    background-color: #fff;
+    border-color: #e5e6eb;
+  }
+}
+
+/* 发送按钮按参考图放宽 */
+.dwagger-debug-api-line .dwagger-api-send {
+  min-width: 150px;
+  font-weight: 500;
+}
+
+.dwagger-api-readonly {
+  margin: 10px auto;
+  width: 98%;
+}
+
+/* 请求方法语义色：比 Swagger 原版压深一档，白字才够对比度 */
+.dwagger-debug-api-post {
+  --method-color: #0b7d55;
+}
+
+.dwagger-debug-api-get {
+  --method-color: #2563eb;
+}
+
+.dwagger-debug-api-head {
+  --method-color: #7e22ce;
+}
+
+.dwagger-debug-api-put {
+  --method-color: #b45309;
+}
+
+.dwagger-debug-api-delete {
+  --method-color: #dc2626;
+}
+
+.dwagger-debug-api-options {
+  --method-color: #1e40af;
+}
+
+.dwagger-debug-api-patch {
+  --method-color: #0f766e;
+}
+
+/* 方法下拉本身就是色块：底色取自所在请求行的 --method-color */
+.dwagger-debug-api-line {
+  .dwagger-api-summary-method {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 6px;
+    background: var(--method-color, #475569);
+  }
+
+  .dwagger-debug-method-select.arco-select-view {
+    background-color: var(--method-color, #475569);
+    border-color: var(--method-color, #475569);
+
+    &:hover {
+      background-color: var(--method-color, #475569);
+      border-color: var(--method-color, #475569);
+    }
+
+    .arco-select-view-value,
+    .arco-select-view-suffix,
+    .arco-select-view-arrow-icon {
+      color: #fff;
+    }
+  }
+}
+
+
+.dwagger-debug-request-type {
+  display: flex;
+  align-items: center;
+  /* 内容区很窄时让类型下拉和美化按钮换行，避免被裁掉 */
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 0;
+}
+
+.dwagger-debug-request-content-type {
+  height: 32px;
+  line-height: 32px;
+}
+
+.dwagger-debug-request-content-type-float {
+  /* 父级已经是 flex，不再用 float + 固定宽度，窄屏下会撑破容器 */
+  float: none;
+  flex: none;
+  width: auto;
+}
+
+
+.dwagger-debug-request-content-type-raw {
+  //width: 360px;
+  //height: 35px;
+  //line-height: 35px;
+}
+
+.dwagger-debug-request-content-type-beautify {
+  //float: right;
+  margin-right: 50px;
+  flex: 1;
+  text-align: right;
+  //height: 35px;
+  //line-height: 35px;
+}
+
+.dwagger-debug-raw-span {
+  cursor: pointer;
+}
+
+
+.dwagger-debug-response {
+  /* 空态和编辑器共用同一个舞台高度，发送前后响应区不跳 */
+  --debug-response-body-height: clamp(320px, calc(100vh - 500px), 560px);
+  margin-top: 20px;
+  min-height: 0;
+}
+
+/* 响应编辑器白底和白页面会糊成一片，用描边容器把它框出来 */
+.dwagger-debug-response [id^='responseEditorContent'] {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--debug-response-body-height);
+  border: 1px solid #e5e6eb;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Ace 的高度改由响应区决定，窗口变化时随视口一起伸展 */
+.dwagger-debug-response .dwagger-debug-ace-root,
+.dwagger-debug-response .dwagger-debug-ace-wrap,
+.dwagger-debug-response .dwagger-debug-ace-editor {
+  height: 100%;
+}
+
+/* raw 请求体的编辑器用同一套描边，两个方向保持一致 */
+.dwagger-debug-request-editor {
+  margin-top: 8px;
+  border: 1px solid #e5e6eb;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* 未发送时的响应占位：和编辑器同顶、同高度、同实线描边。
+   选择器要多几层，盖住 Debug.vue 里把 a-row 改成 block 的旧样式 */
+.dwagger-debug .dwagger-debug-response .dwagger-debug-response-empty {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--debug-response-body-height);
+  border: 1px solid #e5e6eb;
+  border-radius: 6px;
+  background-color: #fafbfc;
+
+  .dwagger-debug-response-empty-inner {
+    padding: 32px;
+    text-align: center;
+  }
+
+  .dwagger-debug-response-empty-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 14px;
+    border-radius: 50%;
+    background-color: var(--dwagger-primary-light);
+    color: @primary;
+    font-size: 26px;
+  }
+
+  .dwagger-debug-response-empty-title {
+    margin: 0;
+    color: @text-main;
+    font-size: 15px;
+    font-weight: 500;
+  }
+}
+
+.dwagger-debug-response-mt {
+  margin-top: 10px;
+}
+
+.dwagger-debug-response-curl {
+  margin: 10px 0;
+  font: 100 12px/18px monaco, andale mono, courier new;
+  padding: 10px 12px;
+  border: 1px solid #e5e6eb;
+  border-radius: 6px;
+  background-color: #f7f8fa;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: @text-main;
+}
+
+/* 响应状态：标签中性色、数值深色，只有响应码按 2xx/4xx/5xx 着色 */
+.dwagger-debug .dwagger-debug-response .dwagger-debug-status {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  margin-right: 0;
+  font-size: 12px;
+  white-space: nowrap;
+
+  .dwagger-debug-status-desc {
+    margin-right: 12px;
+    padding-right: 12px;
+    border-right: 1px solid #e5e6eb;
+    color: @text-sub;
+
+    .arco-checkbox-label {
+      color: @text-sub;
+      font-size: 12px;
+    }
+  }
+
+  .key {
+    padding: 0 0 0 10px;
+    color: @text-sub;
+  }
+
+  .value {
+    padding-left: 4px;
+    color: @text-main;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+
+    &.is-success {
+      color: #0b7d55;
+    }
+
+    &.is-danger {
+      color: #cb2634;
+    }
+  }
+}
+
+/* 全站 * 字体规则会把代码区变成 UI 字体，这里统一切回等宽 */
+.ace_editor,
+.ace_editor .ace_gutter,
+.ace_editor .ace_content,
+.ace_editor .ace_text-layer,
+.ace_editor .ace_line {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.dwagger-debug-ace-editor {
+  overflow-y: hidden;
+
+  .ace_scrollbar-v {
+    overflow-y: hidden;
+  }
+}
+
+/* GET 等无请求体的接口，参数区只留一行说明 */
+.dwagger-debug-params-empty {
+  padding: 12px 0 4px;
+  color: @text-sub;
+  font-size: 12px;
+}
+
+.dwagger-debug-editor-field-description {
+  position: absolute;
+  color: #8c8c8c;
+}

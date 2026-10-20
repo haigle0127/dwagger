@@ -1,0 +1,2 @@
+com.haigle.dwagger.spring.configuration.DwaggerAutoConfiguration
+com.haigle.dwagger.spring.configuration.insight.DwaggerInsightAutoConfiguration
