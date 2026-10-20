@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>dwagger-openapi3-jakarta-spring-boot-starter</artifactId>
+    <name>dwagger-openapi3-jakarta-spring-boot-starter</name>
 
     <properties>
         <dwagger-java.version>17</dwagger-java.version>
