@@ -424,21 +424,8 @@ body {
 }
 
 .dwagger-api-copy-address {
-  font-size: 12px;
-  cursor: pointer;
-  text-align: center;
-  font-weight: 100;
-  color: #0b0a0a;
-}
-
-.dwagger-api-title {
-  margin-top: 10px;
-  margin-bottom: 5px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #616368;
-  height: 35px;
-  line-height: 35px;
+  color: @text-sub;
+  font-weight: 400;
 }
 
 .dwagger-api-row {
@@ -851,8 +838,9 @@ body {
   //line-height: 35px;
 }
 
-.dwagger-debug-raw-span {
-  cursor: pointer;
+.dwagger-debug-raw-button {
+  // 下拉触发器用 Arco 按钮，留出和内容区的间距
+  gap: 4px;
 }
 
 
@@ -888,11 +876,11 @@ body {
   overflow: hidden;
 }
 
-/* 未发送时的响应占位：和编辑器同顶、同高度、同实线描边。
-   选择器要多几层，盖住 Debug.vue 里把 a-row 改成 block 的旧样式 */
+/* 未发送时的响应占位：和编辑器同顶、同高度、同实线描边 */
 .dwagger-debug .dwagger-debug-response .dwagger-debug-response-empty {
   box-sizing: border-box;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: var(--debug-response-body-height);
@@ -900,29 +888,8 @@ body {
   border-radius: 6px;
   background-color: #fafbfc;
 
-  .dwagger-debug-response-empty-inner {
-    padding: 32px;
-    text-align: center;
-  }
-
-  .dwagger-debug-response-empty-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 56px;
-    height: 56px;
-    margin-bottom: 14px;
-    border-radius: 50%;
-    background-color: var(--dwagger-primary-light);
-    color: @primary;
-    font-size: 26px;
-  }
-
-  .dwagger-debug-response-empty-title {
-    margin: 0;
-    color: @text-main;
-    font-size: 15px;
-    font-weight: 500;
+  .arco-empty-image {
+    margin-bottom: 8px;
   }
 }
 
@@ -942,45 +909,16 @@ body {
   color: @text-main;
 }
 
-/* 响应状态：标签中性色、数值深色，只有响应码按 2xx/4xx/5xx 着色 */
+/* 响应状态：标签和数值都交给 Arco，只有状态码按 2xx/4xx/5xx 着色 */
 .dwagger-debug .dwagger-debug-response .dwagger-debug-status {
   display: inline-flex;
   align-items: center;
-  height: 20px;
-  margin-right: 0;
   font-size: 12px;
   white-space: nowrap;
 
-  .dwagger-debug-status-desc {
-    margin-right: 12px;
-    padding-right: 12px;
-    border-right: 1px solid #e5e6eb;
+  .arco-checkbox-label {
     color: @text-sub;
-
-    .arco-checkbox-label {
-      color: @text-sub;
-      font-size: 12px;
-    }
-  }
-
-  .key {
-    padding: 0 0 0 10px;
-    color: @text-sub;
-  }
-
-  .value {
-    padding-left: 4px;
-    color: @text-main;
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-
-    &.is-success {
-      color: #0b7d55;
-    }
-
-    &.is-danger {
-      color: #cb2634;
-    }
+    font-size: 12px;
   }
 }
 
@@ -1001,11 +939,9 @@ body {
   }
 }
 
-/* GET 等无请求体的接口，参数区只留一行说明 */
+/* GET 等无请求体的接口，参数区用 Arco 空态说明 */
 .dwagger-debug-params-empty {
   padding: 12px 0 4px;
-  color: @text-sub;
-  font-size: 12px;
 }
 
 .dwagger-debug-editor-field-description {

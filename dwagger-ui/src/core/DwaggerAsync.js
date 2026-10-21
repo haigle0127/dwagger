@@ -6489,32 +6489,6 @@ var SwaggerBootstrapUiModel = function (id, name) {
   // 存放Model对象的属性结构
   // SwaggerBootstrapUiTreeTableRefParameter集合
   this.data = new Array();
-  this.random = parseInt(Math.random() * (6 - 1 + 1) + 1, 10);
-  this.modelClass = function () {
-    var cname = 'panel-default';
-    switch (this.random) {
-      case 1:
-        cname = 'panel-success';
-        break;
-      case 2:
-        cname = 'panel-success';
-        break;
-      case 3:
-        cname = 'panel-info';
-        break;
-      case 4:
-        cname = 'panel-warning';
-        break;
-      case 5:
-        cname = 'panel-danger';
-        break;
-      case 6:
-        cname = 'panel-default';
-        break;
-    }
-    return cname;
-  }
-
 }
 
 /***

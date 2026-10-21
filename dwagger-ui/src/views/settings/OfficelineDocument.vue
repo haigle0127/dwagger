@@ -2,27 +2,31 @@
   <a-layout-content class="dwagger-body-content">
     <div class="markdown-row">
       <div class="globalparameters">
-        <div class="gptips">
-          {{ $t('offline.des') }}
-        </div>
+        <a-alert type="info">
+          <span>{{ $t('offline.des') }}</span>
+        </a-alert>
       </div>
-      <a-row class="dwagger-download-button">
+      <a-space wrap :size="16" class="dwagger-download-button">
         <a-button @click="triggerDownloadMarkdown">
-          <IconFile /><span>{{ $t('offline.download.markdown') }}</span>
+          <template #icon><icon-file /></template>
+          {{ $t('offline.download.markdown') }}
         </a-button>
-        <a-button type="default" @click="triggerDownloadHtml">
-          <IconFile /><span >{{ $t('offline.download.html') }}</span >
+        <a-button @click="triggerDownloadHtml">
+          <template #icon><icon-file /></template>
+          {{ $t('offline.download.html') }}
         </a-button>
-        <a-button type="default" @click="triggerDownloadWord">
-          <IconFile /><span>{{ $t('offline.download.word') }}</span>
+        <a-button @click="triggerDownloadWord">
+          <template #icon><icon-file /></template>
+          {{ $t('offline.download.word') }}
         </a-button>
-        <a-button type="default" @click="triggerDownloadOpenAPI">
-          <IconFile /><span>OpenAPI</span>
+        <a-button @click="triggerDownloadOpenAPI">
+          <template #icon><icon-file /></template>
+          OpenAPI
         </a-button>
         <!-- <a-button type="default" @click="triggerDownloadPDF">
           <a-icon type="file-pdf" /><span v-html="$t('offline.download.pdf')">下载PDF</span></a-button
         > -->
-      </a-row>
+      </a-space>
       <!--  <a-modal v-model="downloadHtmlFlag" :footer="null" :maskClosable="false" :keyboard="false" :closable="false">
         <p>正在下载中...</p>
       </a-modal> -->
@@ -844,28 +848,18 @@ export default {
 
 <style lang="less" scoped>
 .dwagger-download-button {
+  display: flex;
+  justify-content: center;
   margin: 40px auto;
-  text-align: center;
 
-  button {
+  :deep(.arco-btn) {
     width: 150px;
-    margin: 20px;
   }
 }
 
 .globalparameters {
   width: 73%;
   margin: 40px auto;
-}
-
-.gptips {
-  color: #31708f;
-  background-color: #d9edf7;
-  border-color: #bce8f1;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid transparent;
-  border-radius: 4px;
 }
 
 .download-loading {

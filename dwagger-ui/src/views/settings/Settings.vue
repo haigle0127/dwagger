@@ -1,73 +1,48 @@
 <template>
   <a-layout-content class="dwagger-body-content">
-    <a-row class="settingConfig">
-      <a-row class="gptips" v-html="$t('message.settingTip')">
-
-      </a-row>
-    </a-row>
-    <a-row class="settingConfig">
-      <a-row class="content-line">
-        <a-col :span="24">
-          <a-checkbox @change="checkboxChange('enableRequestCache')" :model-value="settings.enableRequestCache"><span
-              v-html="$t('settings.openCache')"></span></a-checkbox>
-        </a-col>
-      </a-row>
-      <a-divider class="divider" />
-      <a-row class="content-line">
-        <a-col :span="24">
-          <a-checkbox @change="checkboxChange('enableDynamicParameter')" :model-value="settings.enableDynamicParameter">
-            <span v-html="$t('settings.dynamicParameter')"></span></a-checkbox>
-        </a-col>
-      </a-row>
-      <a-divider class="divider" />
-      <a-row class="content-line">
-        <a-col :span="24">
-          <a-checkbox @change="checkboxChange('enableFilterMultipartApis')"
-                      :model-value="settings.enableFilterMultipartApis"><span v-html="$t('settings.apiFilter')"></span></a-checkbox>
-          <a-select style="width:140px;" @change="filterOptionsChange"
-                    :value="settings.enableFilterMultipartApiMethodType">
-            <a-option value="GET">GET</a-option>
-            <a-option value="POST">POST</a-option>
-            <a-option value="PUT">PUT</a-option>
-            <a-option value="DELETE">DELETE</a-option>
-            <a-option value="PATCH">PATCH</a-option>
-            <a-option value="OPTIONS">OPTIONS</a-option>
-            <a-option value="HEAD">HEAD</a-option>
-          </a-select>
-        </a-col>
-      </a-row>
-      <a-divider class="divider" />
-      <!--  <a-row class="content-line">
-        <a-col :span="24">
-          <a-checkbox @change="checkboxChange('enableCacheOpenApiTable')" :model-value="settings.enableCacheOpenApiTable">开启缓存已打开的api文档</a-checkbox>
-        </a-col>
-      </a-row>
-      <a-divider class="divider" /> -->
-      <!-- <a-row class="content-line">
-        <a-col :span="24">
-          <a-checkbox
-            @change="checkboxChange('enableSwaggerBootstrapUi')"
-            :model-value="settings.enableSwaggerBootstrapUi"
-            ><span v-html="$t('settings.plus')"></span
-          ></a-checkbox>
-        </a-col>
-      </a-row> -->
-      <a-divider class="divider" />
-      <a-row class="content-line">
-        <a-col :span="24">
-          <a-checkbox @change="checkboxChange('enableHost')" :model-value="settings.enableHost"><span>Host:
-              <a-input @change="hostChange" style="width:300px;" :model-value="settings.enableHostText" />
-            </span></a-checkbox>
-        </a-col>
-      </a-row>
-      <a-divider class="divider" />
-      <!-- <a-row class="content-line">
-        <a-col :span="24" style="text-align:center;">
-          <a-button type="primary" @click="saveSettings">保存配置</a-button>
-        </a-col>
-      </a-row>
-      <a-divider class="divider" /> -->
-    </a-row>
+    <div class="settingConfig">
+      <a-alert type="info" class="setting-tip">
+        <span v-html="$t('message.settingTip')"></span>
+      </a-alert>
+      <a-card class="setting-card" :bordered="false">
+        <a-list :bordered="false">
+          <a-list-item>
+            <a-checkbox @change="checkboxChange('enableRequestCache')" :model-value="settings.enableRequestCache">
+              <span v-html="$t('settings.openCache')"></span>
+            </a-checkbox>
+          </a-list-item>
+          <a-list-item>
+            <a-checkbox @change="checkboxChange('enableDynamicParameter')" :model-value="settings.enableDynamicParameter">
+              <span v-html="$t('settings.dynamicParameter')"></span>
+            </a-checkbox>
+          </a-list-item>
+          <a-list-item>
+            <a-space wrap :size="16">
+              <a-checkbox @change="checkboxChange('enableFilterMultipartApis')"
+                          :model-value="settings.enableFilterMultipartApis">
+                <span v-html="$t('settings.apiFilter')"></span>
+              </a-checkbox>
+              <a-select class="setting-select" @change="filterOptionsChange"
+                        :value="settings.enableFilterMultipartApiMethodType">
+                <a-option value="GET">GET</a-option>
+                <a-option value="POST">POST</a-option>
+                <a-option value="PUT">PUT</a-option>
+                <a-option value="DELETE">DELETE</a-option>
+                <a-option value="PATCH">PATCH</a-option>
+                <a-option value="OPTIONS">OPTIONS</a-option>
+                <a-option value="HEAD">HEAD</a-option>
+              </a-select>
+            </a-space>
+          </a-list-item>
+          <a-list-item>
+            <a-space wrap :size="16">
+              <a-checkbox @change="checkboxChange('enableHost')" :model-value="settings.enableHost">Host</a-checkbox>
+              <a-input class="setting-input" @change="hostChange" :model-value="settings.enableHostText" />
+            </a-space>
+          </a-list-item>
+        </a-list>
+      </a-card>
+    </div>
   </a-layout-content>
 </template>
 <script>
@@ -303,25 +278,23 @@ export default {
 <style scoped>
 .settingConfig {
   width: 80%;
+  max-width: 960px;
   margin: 20px auto;
 }
 
-.settingConfig .gptips {
-  color: #31708f;
-  background-color: #d9edf7;
-  border-color: #bce8f1;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid transparent;
-  border-radius: 4px;
+.setting-tip {
+  margin-bottom: 16px;
 }
 
-.content-line {
-  height: 50px;
-  line-height: 50px;
+.setting-card :deep(.arco-list-item) {
+  padding: 16px 4px;
 }
 
-.divider {
-  margin: 4px 0;
+.setting-select {
+  width: 160px;
+}
+
+.setting-input {
+  width: 320px;
 }
 </style>

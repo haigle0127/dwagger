@@ -2,12 +2,16 @@
   <div class="generate">
     <!--js脚本示例-->
     <div>
-      <div class="api-title" v-html="$t('script.JSExample')"></div>
+      <a-typography-title :heading="6" class="api-title">
+        <span v-html="$t('script.JSExample')"></span>
+      </a-typography-title>
       <editor-script :value="jsCode"></editor-script>
     </div>
     <!--ts脚本示例-->
     <div>
-      <div class="api-title" v-html="$t('script.TSExample')"></div>
+      <a-typography-title :heading="6" class="api-title">
+        <span v-html="$t('script.TSExample')"></span>
+      </a-typography-title>
       <editor-script :value="tsCode" :tsMode="true"></editor-script>
     </div>
   </div>
@@ -79,13 +83,9 @@ export default {
 </script>
 <style lang="less" scoped>
 .api-title {
-  margin-top: 10px;
-  margin-bottom: 5px;
-  font-size: 16px;
-  font-weight: 600;
-  height: 30px;
-  line-height: 30px;
-  border-left: 4px solid #00ab6d;
-  text-indent: 8px;
+  margin: 20px 0 8px;
+  padding-left: 10px;
+  border-left: 4px solid var(--dwagger-primary);
+  line-height: 1.4;
 }
 </style>
