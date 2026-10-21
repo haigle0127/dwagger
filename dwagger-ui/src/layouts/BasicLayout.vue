@@ -44,8 +44,7 @@
   </div>
 </template>
 <script setup>
-//import logo from "@/assets/logo.png";
-import logo from "@/core/logo.js";
+import logo from "@/assets/logo.png";
 import GlobalHeader from "@/components/GlobalHeader/index.vue";
 import GlobalFooter from "@/components/GlobalFooter/index.vue";
 import KUtils from "@/core/utils";

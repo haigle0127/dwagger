@@ -2770,6 +2770,9 @@ SwaggerBootstrapUi.prototype.readSecurityContextSchemesCommon = function (securi
         // 如果name为空，则默认取key值
         if (KUtils.strBlank(sdobj.name)) {
           sdf.name = j;
+        }
+        // http/bearer/basic 等认证方式没有 in 字段，缺少 in 时按请求头处理
+        if (KUtils.strBlank(sdf.in)) {
           sdf.in = 'header';
         }
         var flag = false;
@@ -4891,55 +4894,27 @@ SwaggerBootstrapUi.prototype.createApiInfoInstance = function (path, mtype, apiI
  * @param {*} apiInfo
  */
 SwaggerBootstrapUi.prototype.readApiSecurity = function (swpinfo, apiInfo) {
-  if (swpinfo.oas2) {
-    this.readApiSecurityOAS2(swpinfo, apiInfo);
-  } else {
-    this.readApiSecurityOAS3(swpinfo, apiInfo);
-  }
-}
-/**
- * OAS2.0结构
- * @param {*} swpinfo
- * @param {*} apiInfo
- */
-SwaggerBootstrapUi.prototype.readApiSecurityOAS2 = function (swpinfo, apiInfo) {
-  // 判断是否包含security节点
+  var securityArr = null;
   if (KUtils.checkUndefined(apiInfo) && apiInfo.hasOwnProperty('security')) {
-    var securityArr = apiInfo['security'];
-    if (KUtils.arrNotEmpty(securityArr)) {
-      var securityKeys = new Array();
-      securityArr.forEach(sa => {
-        var saKeys = Object.keys(sa || {});
-        if (KUtils.arrNotEmpty(saKeys)) {
-          securityKeys = securityKeys.concat(saKeys);
-        }
-      })
-      if (KUtils.arrNotEmpty(securityKeys)) {
-        swpinfo.securityFlag = true;
-        swpinfo.securityKeys = securityKeys;
-      }
-      // console.log(swpinfo);
+    securityArr = apiInfo.security;
+  } else {
+    // OpenAPI 规范：接口未声明 security 时，继承根节点的全局 security（springdoc 常用于全局鉴权）
+    var swaggerData = this.currentInstance.swaggerData;
+    if (KUtils.checkUndefined(swaggerData) && swaggerData.hasOwnProperty('security')) {
+      securityArr = swaggerData.security;
     }
   }
-}
-
-SwaggerBootstrapUi.prototype.readApiSecurityOAS3 = function (swpinfo, apiInfo) {
-  // 判断是否包含security节点
-  if (KUtils.checkUndefined(apiInfo) && apiInfo.hasOwnProperty('security')) {
-    var securityArr = apiInfo['security'];
-    if (KUtils.arrNotEmpty(securityArr)) {
-      var securityKeys = new Array();
-      securityArr.forEach(sa => {
-        var saKeys = Object.keys(sa || {});
-        if (KUtils.arrNotEmpty(saKeys)) {
-          securityKeys = securityKeys.concat(saKeys);
-        }
-      })
-      if (KUtils.arrNotEmpty(securityKeys)) {
-        swpinfo.securityFlag = true;
-        swpinfo.securityKeys = securityKeys;
+  if (KUtils.arrNotEmpty(securityArr)) {
+    var securityKeys = new Array();
+    securityArr.forEach(sa => {
+      var saKeys = Object.keys(sa || {});
+      if (KUtils.arrNotEmpty(saKeys)) {
+        securityKeys = securityKeys.concat(saKeys);
       }
-      // console.log(swpinfo);
+    })
+    if (KUtils.arrNotEmpty(securityKeys)) {
+      swpinfo.securityFlag = true;
+      swpinfo.securityKeys = securityKeys;
     }
   }
 }
