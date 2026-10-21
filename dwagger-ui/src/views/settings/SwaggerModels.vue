@@ -1,17 +1,21 @@
 <template>
   <a-layout-content class="dwagger-body-content">
-    <div class="swaggermododel">
-      <a-collapse @change="modelChange">
-        <a-collapse-item v-for="model in modelNames" :header="model.name" :key="model.id" :class="model.modelClass()">
+    <a-card class="swaggermodel-card" :bordered="false">
+      <a-collapse v-if="modelNames.length" :bordered="false" @change="modelChange">
+        <a-collapse-item v-for="model in modelNames" :key="model.id">
+          <template #header>
+            <a-space :size="8">
+              <a-typography-text class="swaggermodel-name">{{ model.name }}</a-typography-text>
+              <a-tag v-if="model.load" size="small" :bordered="false">{{ model.data.length }}</a-tag>
+            </a-space>
+          </template>
           <a-table v-if="model.load" :columns="columns" :data="model.data"
                    :rowKey="(r) => r.id + r.name" size="medium" :pagination="page">
-<!--            <template #expandedRowRender="{ column, record }">-->
-<!--              {{ `column` + column}}-->
-<!--            </template>-->
           </a-table>
         </a-collapse-item>
       </a-collapse>
-    </div>
+      <a-empty v-else :description="$t('swaggerModel.nodata')" />
+    </a-card>
   </a-layout-content>
 </template>
 <script>
@@ -52,41 +56,13 @@ export default {
       DwaggerModels.setValue(key, treeTableModel);
       if (KUtils.checkUndefined(treeTableModel)) {
         for (const name in treeTableModel) {
-          const random = parseInt(Math.random() * (6 - 1 + 1) + 1, 10)
-          const modelInfo = {
-            // id: KUtils.randomMd5Str(name),
+          modelNames.value.push({
             id: name,
             name: name,
             // 是否加载过
             load: false,
-            data: [],
-            random: random
-          }
-          modelInfo.modelClass = function () {
-            let cname = "panel-default"
-            switch (random) {
-              case 1:
-                cname = "panel-success";
-                break;
-              case 2:
-                cname = "panel-success";
-                break;
-              case 3:
-                cname = "panel-info";
-                break;
-              case 4:
-                cname = "panel-warning";
-                break;
-              case 5:
-                cname = "panel-danger";
-                break;
-              case 6:
-                cname = "panel-default";
-                break;
-            }
-            return cname;
-          };
-          modelNames.value.push(modelInfo);
+            data: []
+          });
         }
       }
       // console.log(this.modelNames)
@@ -193,43 +169,24 @@ export default {
 };
 </script>
 <style lang="less" scoped>
-@ColHeaderSize: 16px;
-@ColTopHeight: 3px;
-
-.swaggermododel {
+.swaggermodel-card {
   width: 98%;
   margin: 20px auto;
 }
 
-.arco-collapse {
-  .panel-info {
-    font-size: @ColHeaderSize;
-    background: #bce8f1;
-    margin-top: @ColTopHeight;
-  }
+.swaggermodel-name {
+  font-size: 15px;
+  font-weight: 600;
+}
 
-  .panel-default {
-    font-size: @ColHeaderSize;
-    background: #ddd;
-    margin-top: @ColTopHeight;
-  }
+.swaggermodel-card :deep(.arco-collapse-item) {
+  margin-bottom: 8px;
+  border: 1px solid #e5e6eb;
+  border-radius: 6px;
+  overflow: hidden;
+}
 
-  .panel-danger {
-    font-size: @ColHeaderSize;
-    background: #ebccd1;
-    margin-top: @ColTopHeight;
-  }
-
-  .panel-success {
-    font-size: @ColHeaderSize;
-    background: #d6e9c6;
-    margin-top: @ColTopHeight;
-  }
-
-  .panel-warning {
-    font-size: @ColHeaderSize;
-    background: #faebcc;
-    margin-top: @ColTopHeight;
-  }
+.swaggermodel-card :deep(.arco-collapse-item-header) {
+  border-bottom: none;
 }
 </style>

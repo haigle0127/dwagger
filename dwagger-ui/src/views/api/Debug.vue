@@ -52,23 +52,17 @@
                 </template>
                 <template #headerValue="{ record }">
                   <!--判断枚举类型-->
-                  <a-row v-if="record.enums != null">
-                    <!--不为空-->
-                    <a-select :mode="record.enumsMode" :defaultValue="record.text" :data-key="record.id"
-                               :options="record.enums" style="width: 100%" @change="(val) => headerContentEnumChnage(val, record)">
-                    </a-select>
-                  </a-row>
-                  <a-row v-else>
-                    <a-input :placeholder="$t('debug.tableHeader.holderValue')"
-                             :class="'dwagger-debug-param-require' + record.require" :data-key="record.id" :defaultValue="record.content"
-                             @change="(val) => headerContentChnage(val, record)" />
-                  </a-row>
+                  <a-select v-if="record.enums != null" :mode="record.enumsMode" :defaultValue="record.text"
+                             :data-key="record.id" :options="record.enums" style="width: 100%"
+                             @change="(val) => headerContentEnumChnage(val, record)">
+                  </a-select>
+                  <a-input v-else :placeholder="$t('debug.tableHeader.holderValue')"
+                           :class="'dwagger-debug-param-require' + record.require" :data-key="record.id"
+                           :defaultValue="record.content" @change="(val) => headerContentChnage(val, record)" />
                 </template>
                 <template #operation="{ record }">
-                  <a-row>
-                    <a-button type="text" status="danger" class="dwagger-debug-row-action" v-if="!record.new"
-                              @click="headerDelete(record)">{{ $t('debug.tableHeader.holderDel') }}</a-button>
-                  </a-row>
+                  <a-button type="text" status="danger" class="dwagger-debug-row-action" v-if="!record.new"
+                            @click="headerDelete(record)">{{ $t('debug.tableHeader.holderDel') }}</a-button>
                 </template>
 
               </a-table>
@@ -86,10 +80,10 @@
                 <div class="dwagger-debug-request-content-type-float">
                   <div class="dwagger-debug-request-content-type-raw">
                     <a-dropdown v-if="rawTypeFlag">
-                      <span class="dwagger-debug-raw-span">
-                        <span>{{ rawDefaultText }}</span>
-                        <IconDown />
-                      </span>
+                      <a-button size="small" class="dwagger-debug-raw-button">
+                        {{ rawDefaultText }}
+                        <icon-down />
+                      </a-button>
                       <template  #content>
                         <a-menu>
                           <a-menu-item key="Auto" @click="() => rawMenuClick('text', 'application/json', 'Auto')">Auto</a-menu-item>
@@ -112,7 +106,7 @@
                   </div>
                 </div>
                 <div v-if="formatFlag" class="dwagger-debug-request-content-type-beautify">
-                  <a @click="beautifyJson">Beautify</a>
+                  <a-link @click="beautifyJson">Beautify</a-link>
                 </div>
               </div>
               <a-row v-if="formFlag">
@@ -133,36 +127,26 @@
                   <template #formValue="{ record }">
                     <div v-if="record.type == 'text'">
                       <!--判断枚举类型-->
-                      <a-row v-if="record.enums != null">
-                        <!--不为空-->
-                        <a-select :mode="record.enumsMode" :defaultValue="record.content" :data-key="record.id"
-                                  :options="record.enums" style="width: 100%" @change="(val) => formContentEnumChange(val, record)">
-                        </a-select>
-                      </a-row>
-                      <a-row v-else>
-                        <a-input :placeholder="record.description"
-                                 :class="'dwagger-debug-param-require' + record.require" :data-key="record.id"
-                                 :defaultValue="record.content" @change="(val) => formContentChange(val, record)" />
-                      </a-row>
+                      <a-select v-if="record.enums != null" :mode="record.enumsMode" :defaultValue="record.content"
+                                :data-key="record.id" :options="record.enums" style="width: 100%"
+                                @change="(val) => formContentEnumChange(val, record)">
+                      </a-select>
+                      <a-input v-else :placeholder="record.description"
+                               :class="'dwagger-debug-param-require' + record.require" :data-key="record.id"
+                               :defaultValue="record.content" @change="(val) => formContentChange(val, record)" />
                     </div>
                     <div v-else>
-                      <!-- <input type="file" :data-key="record.id" @change="formFileChange" /> -->
-                      <div>
-                        <div style="display:none;" v-if="record.multipart">
-                          <input :id="'file' + record.id" multiple style="display:none;" type="file"
-                                 :data-key="record.id" @change="formFileChange" />
-                        </div>
-                        <div style="display:none;" v-else>
-                          <input :id="'file' + record.id" style="display:none;" type="file" :data-key="record.id"
-                                 @change="formFileChange" />
-                        </div>
-                        <a-input-group>
-                          <a-input style="width: 80%" :class="'dwagger-debug-param-require' + record.require"
-                                   :value="record.content" disabled />
-                          <a-button @click="formFileUploadClick(record)"
-                                    class="dwagger-api-send" style="width:80px;" type="primary">{{ $t('debug.form.upload') }}</a-button>
-                        </a-input-group>
-                      </div>
+                      <!-- 原生文件域只负责唤起选择框，界面上由输入框 + 按钮展示 -->
+                      <input v-if="record.multipart" :id="'file' + record.id" multiple style="display:none;" type="file"
+                             :data-key="record.id" @change="formFileChange" />
+                      <input v-else :id="'file' + record.id" style="display:none;" type="file" :data-key="record.id"
+                             @change="formFileChange" />
+                      <a-input-group>
+                        <a-input style="width: 80%" :class="'dwagger-debug-param-require' + record.require"
+                                 :value="record.content" disabled />
+                        <a-button @click="formFileUploadClick(record)"
+                                  class="dwagger-api-send" style="width:80px;" type="primary">{{ $t('debug.form.upload') }}</a-button>
+                      </a-input-group>
                     </div>
                   </template>
                   <template #operation="{ record }">
@@ -180,22 +164,17 @@
                   </template>
                   <template #urlFormValue="{ record }">
                     <!--判断枚举类型-->
-                    <a-row v-if="record.enums != null">
-                      <!--不为空-->
-                      <a-select :mode="record.enumsMode" :defaultValue="record.type" :data-key="record.id"
-                                :options="record.enums" style="width: 100%" @change="(val) => urlFormContentEnumChange(val, record)">
-                      </a-select>
-                    </a-row>
-                    <a-row v-else>
-                      <a-input :placeholder="record.description" :class="'dwagger-debug-param-require' + record.require"
-                               :data-key="record.id" :defaultValue="record.content" @change="(val) => urlFormContentChange(val, record)" />
-                    </a-row>
+                    <a-select v-if="record.enums != null" :mode="record.enumsMode" :defaultValue="record.type"
+                              :data-key="record.id" :options="record.enums" style="width: 100%"
+                              @change="(val) => urlFormContentEnumChange(val, record)">
+                    </a-select>
+                    <a-input v-else :placeholder="record.description"
+                             :class="'dwagger-debug-param-require' + record.require" :data-key="record.id"
+                             :defaultValue="record.content" @change="(val) => urlFormContentChange(val, record)" />
                   </template>
                   <template #operation="{ record }">
-                    <a-row>
-                      <a-button type="text" status="danger" class="dwagger-debug-row-action" v-if="!record.new"
-                                @click="urlFormDelete(record)">{{ $t('debug.tableHeader.holderDel') }}</a-button>
-                    </a-row>
+                    <a-button type="text" status="danger" class="dwagger-debug-row-action" v-if="!record.new"
+                              @click="urlFormDelete(record)">{{ $t('debug.tableHeader.holderDel') }}</a-button>
                   </template>
 
                 </a-table>
@@ -214,23 +193,17 @@
                     <!--参数名称-->
                     <template #urlFormValue="{ record }">
                       <!--判断枚举类型-->
-                      <a-row v-if="record.enums != null">
-                        <!--不为空-->
-                        <a-select :mode="record.enumsMode" :defaultValue="record.content" :data-key="record.id"
-                          :options="record.enums" style="width: 100%" @change="(val) => rawFormContentEnumChange(val, record)">
-                        </a-select>
-                      </a-row>
-                      <a-row v-else>
-                        <a-input :placeholder="record.description"
-                          :class="'dwagger-debug-param-require' + record.require" :data-key="record.id"
-                          :defaultValue="record.content" @change="(val) => rawFormContentChange(val, record)" />
-                      </a-row>
+                      <a-select v-if="record.enums != null" :mode="record.enumsMode" :defaultValue="record.content"
+                                :data-key="record.id" :options="record.enums" style="width: 100%"
+                                @change="(val) => rawFormContentEnumChange(val, record)">
+                      </a-select>
+                      <a-input v-else :placeholder="record.description"
+                               :class="'dwagger-debug-param-require' + record.require" :data-key="record.id"
+                               :defaultValue="record.content" @change="(val) => rawFormContentChange(val, record)" />
                     </template>
                     <template #operation="{ record }">
-                      <a-row>
-                        <a-button type="text" status="danger" class="dwagger-debug-row-action" v-if="!record.new"
-                                  @click="rawFormDelete(record)">{{ $t('debug.tableHeader.holderDel') }}</a-button>
-                      </a-row>
+                      <a-button type="text" status="danger" class="dwagger-debug-row-action" v-if="!record.new"
+                                @click="rawFormDelete(record)">{{ $t('debug.tableHeader.holderDel') }}</a-button>
                     </template>
 
                   </a-table>
@@ -238,13 +211,12 @@
                 <editor-debug-show class="dwagger-debug-request-editor" v-model:value="rawText" :mode="rawMode">
                 </editor-debug-show>
               </a-row>
-              <div v-if="showNoParamsTip" class="dwagger-debug-params-empty">{{ $t('debug.noParams') }}</div>
+              <a-empty v-if="showNoParamsTip" class="dwagger-debug-params-empty" :description="$t('debug.noParams')" />
             </a-tab-pane>
             <a-tab-pane v-if="enableAfterScript" key="3" title="AfterScript">
-              <a-row style="height:25px;line-height:25px;">
-                关于AfterScript更详细的使用方法及介绍,请<a href="#"
-                  target="_blank">参考文档</a>
-              </a-row>
+              <a-typography-text class="dwagger-debug-script-tip">
+                关于AfterScript更详细的使用方法及介绍,请<a-link href="#" target="_blank">参考文档</a-link>
+              </a-typography-text>
               <a-row>
                 <editor-script style="margin-top:5px;" v-model:value="rawScript"></editor-script>
               </a-row>

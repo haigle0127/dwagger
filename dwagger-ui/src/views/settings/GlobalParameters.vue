@@ -1,7 +1,9 @@
 <template>
   <a-layout-content class="dwagger-body-content">
     <div class="globalparameters">
-      <div class="gptips" v-html="$t('global.note')"></div>
+      <a-alert type="info" class="gp-tip">
+        <span v-html="$t('global.note')"></span>
+      </a-alert>
     </div>
     <div class="globalparameters">
       <a-button type="primary" @click="addGlobalParameters">
@@ -287,14 +289,8 @@ import { Message as message } from '@arco-design/web-vue';export default {
   margin: 10px auto;
 }
 
-.gptips {
-  color: #31708f;
-  background-color: #d9edf7;
-  border-color: #bce8f1;
-  padding: 10px;
+.gp-tip {
   margin-bottom: 10px;
-  border: 1px solid transparent;
-  border-radius: 4px;
 }
 
 .gptable {

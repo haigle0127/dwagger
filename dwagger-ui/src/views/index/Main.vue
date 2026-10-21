@@ -5,53 +5,76 @@
     </div>
     <div class="home" v-else>
       <!-- 顶部概览卡片 -->
-      <div class="hero">
-        <h2 class="hero-title">{{ swaggerCurrentInstance.title }}</h2>
-        <p class="hero-desc" v-if="swaggerCurrentInstance.description"
-           v-html="swaggerCurrentInstance.description"></p>
-        <div class="hero-tags">
-          <span class="hero-tag" v-if="swaggerCurrentInstance.version">
+      <a-card class="hero-card" :bordered="false">
+        <a-typography-title :heading="3" class="hero-title">
+          {{ swaggerCurrentInstance.title }}
+        </a-typography-title>
+        <a-typography-paragraph class="hero-desc" v-if="swaggerCurrentInstance.description">
+          <span v-html="swaggerCurrentInstance.description"></span>
+        </a-typography-paragraph>
+        <a-space wrap :size="10">
+          <a-tag class="hero-tag" :bordered="false" v-if="swaggerCurrentInstance.version">
             {{ $t('homePage.version') }} {{ swaggerCurrentInstance.version }}
-          </span>
-          <span class="hero-tag" v-if="swaggerCurrentInstance.name">
+          </a-tag>
+          <a-tag class="hero-tag" :bordered="false" v-if="swaggerCurrentInstance.name">
             {{ $t('homePage.groupName') }} {{ swaggerCurrentInstance.name }}
-          </span>
-          <span class="hero-tag" v-if="swaggerCurrentInstance.host">
+          </a-tag>
+          <a-tag class="hero-tag" :bordered="false" v-if="swaggerCurrentInstance.host">
             {{ swaggerCurrentInstance.host }}
-          </span>
-        </div>
-      </div>
+          </a-tag>
+        </a-space>
+      </a-card>
 
-      <div class="card-row">
+      <a-row class="card-row" :gutter="16">
         <!-- 服务信息 -->
-        <div class="card">
-          <div class="card-title">{{ $t('homePage.serviceInfo') }}</div>
-          <div class="info-line" v-for="row in serviceRows" :key="row.label">
-            <span class="info-label">{{ row.label }}</span>
-            <span class="info-value" v-html="row.value || '-'"></span>
-          </div>
-        </div>
+        <a-col :xs="24" :lg="12">
+          <a-card class="info-card" :bordered="false">
+            <template #title>
+              <span class="card-title">
+                <icon-info-circle />{{ $t('homePage.serviceInfo') }}
+              </span>
+            </template>
+            <a-descriptions :column="1" size="large">
+              <a-descriptions-item v-for="row in serviceRows" :key="row.label" :label="row.label">
+                <span v-html="row.value || '-'"></span>
+              </a-descriptions-item>
+            </a-descriptions>
+          </a-card>
+        </a-col>
         <!-- 分组信息 -->
-        <div class="card">
-          <div class="card-title">{{ $t('homePage.groupInfo') }}</div>
-          <div class="info-line" v-for="row in groupRows" :key="row.label">
-            <span class="info-label">{{ row.label }}</span>
-            <span class="info-value" v-html="row.value || '-'"></span>
-          </div>
-        </div>
-      </div>
+        <a-col :xs="24" :lg="12">
+          <a-card class="info-card" :bordered="false">
+            <template #title>
+              <span class="card-title">
+                <icon-apps />{{ $t('homePage.groupInfo') }}
+              </span>
+            </template>
+            <a-descriptions :column="1" size="large">
+              <a-descriptions-item v-for="row in groupRows" :key="row.label" :label="row.label">
+                <span v-html="row.value || '-'"></span>
+              </a-descriptions-item>
+            </a-descriptions>
+          </a-card>
+        </a-col>
+      </a-row>
 
       <!-- 接口统计 -->
-      <div class="card">
-        <div class="card-title">{{ $t('homePage.apiCountNumber') }}</div>
-        <div class="method-list">
-          <div class="method-item" v-for="param in swaggerCurrentInstance.pathArrs"
-               :key="param.method" :class="'method-' + String(param.method).toLowerCase()">
+      <a-card class="method-card" :bordered="false">
+        <template #title>
+          <span class="card-title">
+            <icon-bar-chart />{{ $t('homePage.apiCountNumber') }}
+          </span>
+        </template>
+        <a-space wrap :size="12">
+          <a-tag v-for="param in swaggerCurrentInstance.pathArrs"
+                 :key="param.method"
+                 :color="methodColors[param.method] || 'gray'"
+                 class="method-tag">
             <span class="method-name">{{ param.method }}</span>
             <span class="method-count">{{ param.count }}</span>
-          </div>
-        </div>
-      </div>
+          </a-tag>
+        </a-space>
+      </a-card>
     </div>
   </a-layout-content>
 </template>
@@ -59,6 +82,7 @@
 import { computed, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useGlobalsStore } from '@/store/modules/global.js'
+import { IconApps, IconBarChart, IconInfoCircle } from '@arco-design/web-vue/es/icon'
 
 export default {
   props: {
@@ -67,7 +91,10 @@ export default {
     }
   },
   components: {
-    "Markdown": defineAsyncComponent(() => import('@/components/Markdown/index.vue'))
+    "Markdown": defineAsyncComponent(() => import('@/components/Markdown/index.vue')),
+    IconInfoCircle,
+    IconApps,
+    IconBarChart,
   },
   setup() {
     const globalsStore = useGlobalsStore()
@@ -107,6 +134,16 @@ export default {
       settings,
       serviceRows,
       groupRows,
+      // HTTP 方法对应 Arco 预设色，保持和标签体系一致
+      methodColors: {
+        GET: 'arcoblue',
+        POST: 'green',
+        PUT: 'orange',
+        DELETE: 'red',
+        PATCH: 'cyan',
+        HEAD: 'purple',
+        OPTIONS: 'blue',
+      },
       title: 'dwagger'
     }
   }
@@ -114,134 +151,84 @@ export default {
 </script>
 <style scoped>
 .home {
-  padding: 16px;
+  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* 顶部概览 */
-.hero {
+/* 顶部概览：保留渐变主视觉，内容交给 Arco 排版组件 */
+.hero-card {
   background: linear-gradient(135deg, var(--dwagger-hero-start) 0%, var(--dwagger-hero-end) 100%);
-  border-radius: 10px;
-  color: #fff;
+}
+
+.hero-card :deep(.arco-card-body) {
   padding: 32px 28px;
-  margin-bottom: 16px;
 }
 
 .hero-title {
-  font-size: 28px;
-  font-weight: 600;
   margin: 0 0 10px;
+  color: #fff;
 }
 
 .hero-desc {
+  margin: 0 0 16px;
+  color: rgba(255, 255, 255, 0.85);
   font-size: 15px;
   line-height: 24px;
-  color: rgba(255, 255, 255, 0.85);
-  margin: 0 0 16px;
-}
-
-.hero-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 
 .hero-tag {
+  color: #fff;
   background: rgba(255, 255, 255, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   padding: 4px 14px;
   font-size: 13px;
 }
 
-/* 信息卡片 */
 .card-row {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-top: 16px;
 }
 
-.card-row .card {
-  flex: 1;
-  min-width: 320px;
-}
-
-.card {
-  background: #fff;
-  border: 1px solid #e5e6eb;
-  border-radius: 10px;
-  padding: 20px 24px;
+.card-row .info-card {
+  height: 100%;
 }
 
 .card-title {
-  font-size: 17px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
   font-weight: 600;
-  color: #1d2129;
-  padding-left: 10px;
-  border-left: 4px solid var(--dwagger-primary);
-  margin-bottom: 14px;
 }
 
-.info-line {
-  display: flex;
-  align-items: baseline;
-  min-height: 38px;
-  line-height: 38px;
-  border-bottom: 1px dashed #e5e6eb;
-}
-
-.info-line:last-child {
-  border-bottom: none;
-}
-
-.info-label {
-  width: 120px;
-  flex-shrink: 0;
+.info-card :deep(.arco-descriptions-item-label) {
+  width: 110px;
   color: #86909c;
-  font-size: 14px;
 }
 
-.info-value {
+.info-card :deep(.arco-descriptions-item-value) {
   color: #1d2129;
-  font-size: 14px;
   word-break: break-all;
 }
 
 /* 接口统计 */
-.method-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
+.method-card {
+  margin-top: 16px;
 }
 
-.method-item {
-  display: flex;
-  align-items: center;
-  border-radius: 8px;
-  overflow: hidden;
+.method-tag {
+  height: 36px;
+  padding: 0 16px;
   font-size: 14px;
-}
-
-.method-name {
-  color: #fff;
   font-weight: 600;
-  padding: 8px 16px;
+  line-height: 34px;
+  border-radius: 8px;
 }
 
 .method-count {
-  background: #fff;
-  color: #1d2129;
-  font-weight: 600;
-  padding: 8px 18px;
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid currentColor;
+  opacity: 0.7;
 }
-
-.method-get .method-name { background: #61affe; }
-.method-post .method-name { background: #49cc90; }
-.method-put .method-name { background: #fca130; }
-.method-delete .method-name { background: #f93e3e; }
-.method-patch .method-name { background: #50e3c2; }
-.method-head .method-name { background: #9012fe; }
-.method-options .method-name { background: #0d5aa7; }
 </style>

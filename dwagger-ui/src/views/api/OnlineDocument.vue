@@ -2,8 +2,8 @@
   <div class="dwagger-document">
     <!-- <h2 :id="api.operationId">{{api.summary}}</h2> -->
     <a-row>
-      <a-row :id="api.operationId" class="dwagger-api-title">
-        {{ api.summary }}
+      <a-row :id="api.operationId">
+        <a-typography-title :heading="4" class="dwagger-api-name">{{ api.summary }}</a-typography-title>
       </a-row>
       <a-row :class="'dwagger-api-' + api.methodType.toLowerCase()">
         <div class="dwagger-api-summary">
@@ -29,22 +29,24 @@
     <!-- <a-divider class="divider" /> -->
     <!--接口描述-->
     <div v-if="api.description">
-      <div class="api-title">
+      <a-typography-title :heading="6" class="api-title">
         接口描述
-      </div>
-      <div v-if="api.description" v-html="api.description" class="api-body-desc"></div>
+      </a-typography-title>
+      <a-card :bordered="false" class="api-body-desc">
+        <span v-html="api.description"></span>
+      </a-card>
     </div>
     <!--请求示例-->
     <div v-if="api.requestValue">
-      <div class="api-title">
+      <a-typography-title :heading="6" class="api-title">
         请求示例
-      </div>
+      </a-typography-title>
       <pre class="api-editor-show" v-html="formaterJson(api.requestValue)"></pre>
       <!-- <editor-show :value="api.requestValue"></editor-show> -->
     </div>
-    <div class="api-title">
+    <a-typography-title :heading="6" class="api-title">
       请求参数
-    </div>
+    </a-typography-title>
     <a-table defaultExpandAllRows :columns="columns" :data="reqParameters" :rowKey="genUnionTableKey" size="small"
       :pagination="page">
       <template #requireTemplate="{ record }">
@@ -60,9 +62,9 @@
         <data-type :text="record.type" :record="record"></data-type>
       </template>
     </a-table>
-    <div class="api-title">
+    <a-typography-title :heading="6" class="api-title">
       响应状态
-    </div>
+    </a-typography-title>
     <a-table :defaultExpandAllRows="expanRows" :columns="responseStatuscolumns" :data="api.responseCodes"
       rowKey="code" size="small" :pagination="page">
       <template #descriptionTemplate="{ record }">
@@ -76,23 +78,23 @@
         <a-tab-pane :title="resp.code">
           <!--判断响应头-->
           <div v-if="resp.responseHeaderParameters">
-            <div class="api-title">
+            <a-typography-title :heading="6" class="api-title">
               响应Header
-            </div>
+            </a-typography-title>
             <a-table :defaultExpandAllRows="expanRows" :columns="responseHeaderColumns"
               :data="resp.responseHeaderParameters" rowKey="id" size="small" :pagination="page">
             </a-table>
           </div>
           <!--响应参数-->
-          <div class="api-title">
+          <a-typography-title :heading="6" class="api-title">
             响应参数
-          </div>
+          </a-typography-title>
           <a-table :defaultExpandAllRows="expanRows" :columns="responseParametersColumns" :data="resp.data"
             rowKey="id" size="small" :pagination="page">
           </a-table>
-          <div class="api-title">
+          <a-typography-title :heading="6" class="api-title">
             响应示例
-          </div>
+          </a-typography-title>
           <div class="api-editor-show" v-if="resp.responseBasicType">
             {{ resp.responseText }}
           </div>
@@ -105,23 +107,23 @@
     <div v-else>
       <!--判断响应头-->
       <div v-if="api.responseHeaderParameters">
-        <div class="api-title">
+        <a-typography-title :heading="6" class="api-title">
           响应Header
-        </div>
+        </a-typography-title>
         <a-table :defaultExpandAllRows="expanRows" :columns="responseHeaderColumns"
           :data="api.responseHeaderParameters" rowKey="id" size="small" :pagination="page">
         </a-table>
       </div>
       <!--响应参数-->
-      <div class="api-title">
+      <a-typography-title :heading="6" class="api-title">
         响应参数
-      </div>
+      </a-typography-title>
       <a-table :defaultExpandAllRows="expanRows" :columns="responseParametersColumns" :data="multipData.data"
         rowKey="id" size="small" :pagination="page">
       </a-table>
-      <div class="api-title">
+      <a-typography-title :heading="6" class="api-title">
         响应示例
-      </div>
+      </a-typography-title>
       <div class="api-editor-show" v-if="multipData.responseBasicType">
         {{ multipData.responseText }}
       </div>
@@ -563,13 +565,8 @@ export default {
   margin-top: 30px;
 }
 
-.api-tab {
-  margin-top: 15px;
-
-  .arco-tag {
-    height: 32px;
-    line-height: 32px;
-  }
+.dwagger-api-name {
+  margin: 0 0 8px;
 }
 
 .api-editor-show {
@@ -585,58 +582,19 @@ export default {
   color: #444;
 }
 
-.api-basic {
-  padding: 11px;
-}
-
-.api-basic-title {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.api-basic-body {
-  font-size: 14px;
-  font-family: -webkit-body;
-}
-
-.api-description {
-  border-left: 4px solid #ddd;
-  line-height: 30px;
-}
-
 .api-body-desc {
-  padding: 10px;
-  min-height: 35px;
-  box-sizing: border-box;
-  border: 1px solid #e8e8e8;
+  background: #fafbfc;
+  border-radius: 6px;
 }
 
-.arco-card-body {
-  padding: 5px;
+.api-body-desc :deep(.arco-card-body) {
+  padding: 10px 12px;
 }
 
 .api-title {
-  margin-top: 10px;
-  margin-bottom: 5px;
-  font-size: 16px;
-  font-weight: 600;
-  height: 30px;
-  line-height: 30px;
-  border-left: 4px solid #00ab6d;
-  text-indent: 8px;
-}
-
-.content-line {
-  height: 25px;
-  line-height: 25px;
-}
-
-.content-line-count {
-  height: 35px;
-  line-height: 35px;
-}
-
-.divider {
-  margin: 4px 0;
+  margin: 20px 0 8px;
+  padding-left: 10px;
+  border-left: 4px solid var(--dwagger-primary);
+  line-height: 1.4;
 }
 </style>

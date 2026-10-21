@@ -3,30 +3,25 @@
     <a-tabs defaultActiveKey="debugResponse" class="dwagger-debug-response-tabs">
       <!-- Arco 的 tab 栏右侧扩展区叫 extra，旧版 slot 写法不会渲染出状态信息 -->
       <template #extra>
-        <a-row v-if="responseStatus" class="dwagger-debug-status">
-          <span class="dwagger-debug-status-desc">
-            <a-checkbox :default-checked="responseFieldDescriptionChecked" @change="showFieldDesChange">
-              <span>{{ $t('debug.response.showDes') }}</span>
-            </a-checkbox>
-          </span>
-          <span class="key">{{ $t('debug.response.code') }}</span>
-          <span class="value" :class="responseCodeState">{{ responseStatus.code }}</span>
-          <span class="key">{{ $t('debug.response.cost') }}</span>
-          <span class="value">{{ responseStatus.cost }}</span>
-          <span class="key">{{ $t('debug.response.size') }}</span>
-          <span class="value">{{ responseSizeText }}</span>
-        </a-row>
+        <a-space v-if="responseStatus" class="dwagger-debug-status" :size="8">
+          <a-checkbox :default-checked="responseFieldDescriptionChecked" @change="showFieldDesChange">
+            <span>{{ $t('debug.response.showDes') }}</span>
+          </a-checkbox>
+          <a-divider direction="vertical" />
+          <a-typography-text type="secondary">{{ $t('debug.response.code') }}</a-typography-text>
+          <a-tag :color="responseCodeColor">{{ responseStatus.code }}</a-tag>
+          <a-typography-text type="secondary">{{ $t('debug.response.cost') }}</a-typography-text>
+          <a-tag color="gray">{{ responseStatus.cost }}</a-tag>
+          <a-typography-text type="secondary">{{ $t('debug.response.size') }}</a-typography-text>
+          <a-tag color="gray">{{ responseSizeText }}</a-tag>
+        </a-space>
       </template>
       <a-tab-pane :title="i18n.debug.response.content" key="debugResponse">
         <a-row v-if="responseContent">
           <a-row v-if="responseContent.blobFlag">
-            <div v-if="responseContent.imageFlag">
-              <img :src="responseContent.blobUrl" />
-            </div>
-            <div v-else>
-              <a-button type="text" :href="responseContent.blobUrl" :download="responseContent.blobFileName">
-                {{ $t('debug.response.download') }}</a-button>
-            </div>
+            <a-image v-if="responseContent.imageFlag" :src="responseContent.blobUrl" />
+            <a-button v-else type="text" :href="responseContent.blobUrl" :download="responseContent.blobFileName">
+              {{ $t('debug.response.download') }}</a-button>
           </a-row>
           <div :id="'responseEditorContent' + api.id" v-else>
             <editor-debug-show @showDescription="showEditorFieldDescription" @debugEditorChange="debugEditorChange"
@@ -35,12 +30,8 @@
           </div>
         </a-row>
         <!-- 未发送也保留响应区骨架，发送后内容原位替换，不再整块上跳 -->
-        <div v-else class="dwagger-debug-response-empty">
-          <div class="dwagger-debug-response-empty-inner">
-            <span class="dwagger-debug-response-empty-icon"><IconCodeSquare /></span>
-            <p class="dwagger-debug-response-empty-title">{{ i18n.debug.response.emptyTitle }}</p>
-          </div>
-        </div>
+        <a-empty v-else class="dwagger-debug-response-empty"
+                 :description="i18n.debug.response.emptyTitle" />
       </a-tab-pane>
       <a-tab-pane title="Raw" key="debugRaw" forceRender :disabled="!responseStatus">
         <a-row class="dwagger-debug-response-mt">
@@ -74,7 +65,7 @@
       <a-tab-pane v-if="responseContent != null && responseContent.base64 != null && responseContent.base64 != ''"
         title="Base64Img" key="debugBase64Img">
         <a-row class="dwagger-debug-response-mt">
-          <img :src="responseContent.base64" />
+          <a-image :src="responseContent.base64" />
         </a-row>
       </a-tab-pane>
     </a-tabs>
@@ -86,7 +77,7 @@ import ClipboardJS from "clipboard";
 import { computed, defineAsyncComponent } from 'vue'
 import { useGlobalsStore } from '@/store/modules/global.js'
 import { useI18n } from 'vue-i18n'
-import { IconCopy, IconCodeSquare } from '@arco-design/web-vue/es/icon'
+import { IconCopy } from '@arco-design/web-vue/es/icon'
 /* import EditorDebugShow from "./EditorDebugShow"; */
 
 export default {
@@ -125,7 +116,7 @@ export default {
       default: true
     }
   },
-  components: { IconCopy, IconCodeSquare, 'EditorDebugShow': defineAsyncComponent(() => import('./EditorDebugShow.vue')) },
+  components: { IconCopy, 'EditorDebugShow': defineAsyncComponent(() => import('./EditorDebugShow.vue')) },
   setup() {
     const store = useGlobalsStore()
     const language = computed(() => {
@@ -154,16 +145,16 @@ export default {
     }
   },
   computed: {
-    responseCodeState() {
-      // 2xx 深绿、4xx/5xx 红，其余用中性色，避免 500 也显示成成功绿
+    responseCodeColor() {
+      // 2xx 绿、4xx/5xx 红，其余用中性色，避免 500 也显示成成功绿
       const code = Number(this.responseStatus && this.responseStatus.code);
       if (code >= 200 && code < 300) {
-        return 'is-success';
+        return 'green';
       }
       if (code >= 400) {
-        return 'is-danger';
+        return 'red';
       }
-      return 'is-neutral';
+      return 'gray';
     },
     responseSizeText() {
       var str = "0 B";

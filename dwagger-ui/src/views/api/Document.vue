@@ -1,65 +1,68 @@
 <template>
   <div class="document">
-    <div style="width: 100%">
-      <a-row type="flex" class="dwagger-api-title">
-        <a-col :flex="18">
-          <span v-if="api.deprecated" class="dwagger-menu-api-deprecated">
-            {{ api.summary }}
-          </span>
-          <span v-else>
-            {{ api.summary }}
-          </span>
-        </a-col>
-          <!-- 复制接口 -->
-        <a-col :flex="2" :id="'btnCopyMethod' + api.id" class="dwagger-api-copy-address" v-html="$t('doc.copyMethod')"></a-col>
-          <!-- 复制文档 -->
-        <a-col :flex="2" :id="'btnCopyMarkdown' + api.id" class="dwagger-api-copy-address" v-html="$t('doc.copy')"></a-col>
-          <!-- 复制地址 -->
-        <a-col :flex="2" :id="'btnCopyAddress' + api.id" class="dwagger-api-copy-address" v-html="$t('doc.copyHash')"></a-col>
-      </a-row>
-      <a-row :class="'dwagger-api-' + api.methodType.toLowerCase()">
-        <div class="dwagger-api-summary">
-          <span class="dwagger-api-summary-method">
-            {{ api.methodType }}
-          </span>
-          <span class="dwagger-api-summary-path">{{ api.showUrl }}</span>
-        </div>
-      </a-row>
-      <a-row class="dwagger-api-row">
-        <a-col :span="12">
-          <a-row>
-              <!-- 请求数据类型 -->
-            <a-col class="api-basic-title" :span="6" v-html="$t('doc.produces')"></a-col>
-            {{ contentType }}
-          </a-row>
-        </a-col>
-        <a-col :span="12">
-          <a-row>
-              <!-- 响应数据类型 -->
-            <a-col class="api-basic-title" :span="6" v-html="$t('doc.consumes')"></a-col>
-            {{ api.produces }}
-          </a-row>
-        </a-col>
-      </a-row>
-    </div>
-    <!-- <a-divider class="divider" /> -->
+    <a-card :bordered="false" class="api-header-card">
+      <div class="api-header-row">
+        <a-typography-title :heading="4"
+                            class="api-name"
+                            :class="{ 'dwagger-menu-api-deprecated': api.deprecated }">
+          {{ api.summary }}
+        </a-typography-title>
+        <!-- 复制接口 / 复制文档 / 复制地址 -->
+        <a-space :size="4" class="api-copy-actions">
+          <a-button type="text" size="small" class="dwagger-api-copy-address" :id="'btnCopyMethod' + api.id">
+            <template #icon><icon-copy /></template>
+            <span v-html="$t('doc.copyMethod')"></span>
+          </a-button>
+          <a-button type="text" size="small" class="dwagger-api-copy-address" :id="'btnCopyMarkdown' + api.id">
+            <template #icon><icon-file /></template>
+            <span v-html="$t('doc.copy')"></span>
+          </a-button>
+          <a-button type="text" size="small" class="dwagger-api-copy-address" :id="'btnCopyAddress' + api.id">
+            <template #icon><icon-link /></template>
+            <span v-html="$t('doc.copyHash')"></span>
+          </a-button>
+        </a-space>
+      </div>
+      <div class="api-endpoint">
+        <a-tag class="api-method" :style="{ '--api-method-color': methodColor(api.methodType) }">
+          {{ api.methodType }}
+        </a-tag>
+        <a-typography-text class="api-path">{{ api.showUrl }}</a-typography-text>
+      </div>
+      <a-descriptions :column="{ xs: 1, md: 2 }" size="large" layout="inline-horizontal" class="api-meta">
+        <a-descriptions-item :label="$t('doc.produces')">{{ contentType }}</a-descriptions-item>
+        <a-descriptions-item :label="$t('doc.consumes')">{{ mediaTypeText(api.produces) }}</a-descriptions-item>
+      </a-descriptions>
+    </a-card>
+    <!-- 开发者 -->
     <div v-if="api.author">
-        <!-- 开发者 -->
-      <div class="api-title" v-html="$t('doc.author')"></div>
-      <div v-if="api.author" v-html="api.author" class="api-body-desc"></div>
+      <a-typography-title :heading="6" class="api-title">
+        <span v-html="$t('doc.author')"></span>
+      </a-typography-title>
+      <a-card :bordered="false" class="api-body-desc">
+        <span v-html="api.author"></span>
+      </a-card>
     </div>
     <!--接口描述-->
     <div v-if="api.description">
-      <div class="api-title" v-html="$t('doc.des')"></div>
-      <div v-if="api.description" v-html="api.description" class="api-body-desc"></div>
+      <a-typography-title :heading="6" class="api-title">
+        <span v-html="$t('doc.des')"></span>
+      </a-typography-title>
+      <a-card :bordered="false" class="api-body-desc">
+        <span v-html="api.description"></span>
+      </a-card>
     </div>
     <!--请求示例-->
     <div v-if="api.requestValue">
-      <div class="api-title" v-html="$t('doc.requestExample')"></div>
+      <a-typography-title :heading="6" class="api-title">
+        <span v-html="$t('doc.requestExample')"></span>
+      </a-typography-title>
       <editor-show :value="api.requestValue" :xmlMode="api.xmlRequest"></editor-show>
     </div>
-      <!-- 请求参数 -->
-    <div class="api-title" v-html="$t('doc.params')"></div>
+    <!-- 请求参数 -->
+    <a-typography-title :heading="6" class="api-title">
+      <span v-html="$t('doc.params')"></span>
+    </a-typography-title>
     <a-table :defaultExpandAllRows="expanRows" :columns="columns" :data="reqParameters" rowKey="id" size="small"
       :pagination="page">
       <template #requestDescription="{ record }">
@@ -78,8 +81,10 @@
       </template>
     </a-table>
     <div v-if="responseCodeDisplayStatus">
-        <!-- 响应状态 -->
-      <div class="api-title" v-html="$t('doc.response')"></div>
+      <!-- 响应状态 -->
+      <a-typography-title :heading="6" class="api-title">
+        <span v-html="$t('doc.response')"></span>
+      </a-typography-title>
       <a-table :defaultExpandAllRows="expanRows" :columns="responseStatuscolumns" :data="api.responseCodes"
         rowKey="code" size="small" :pagination="page">
         <template #descriptionTemplate="{ record }">
@@ -97,63 +102,67 @@
         <a-tab-pane v-for="resp in multipCodeDatas" :key="resp.code" :title="$t('doc.responseHeaderParams')">
           <!--判断响应头-->
           <div v-if="resp.responseHeaderParameters">
-              <!-- 响应Header -->
+            <!-- 响应Header -->
             <a-table :defaultExpandAllRows="expanRows" :columns="responseHeaderColumns"
               :data="resp.responseHeaderParameters" rowKey="id" size="small" :pagination="page">
             </a-table>
           </div>
-          <!--响应参数-->
           <!-- 响应参数 -->
-          <div class="api-title" v-html="$t('doc.responseParams')"></div>
+          <a-typography-title :heading="6" class="api-title">
+            <span v-html="$t('doc.responseParams')"></span>
+          </a-typography-title>
           <a-table :defaultExpandAllRows="expanRows" :columns="responseParametersColumns" :data="resp.data"
             rowKey="id" size="small" :pagination="page">
             <template #descriptionTemplate="{ record }">
               <span v-html="record.description"></span>
             </template>
           </a-table>
-            <!-- 响应示例 -->
-          <div class="api-title" v-html="$t('doc.responseExample')"></div>
+          <!-- 响应示例 -->
+          <a-typography-title :heading="6" class="api-title">
+            <span v-html="$t('doc.responseExample')"></span>
+          </a-typography-title>
           <a-row :id="'dwaggerDocumentShowEditor' + api.id + resp.code" style="display: block">
             <editor-show @showDescription="showResponseEditFieldDescription" :value="
               resp.responseBasicType ? resp.responseText : resp.responseValue
             "></editor-show>
           </a-row>
-
-          <!-- <editor :value="resp.responseBasicType ? resp.responseText : resp.responseValue" @init="multiResponseSampleEditorInit" lang="json" theme="eclipse" width="100%" :height="editorMultiHeight"></editor> -->
         </a-tab-pane>
       </a-tabs>
     </div>
     <div v-else>
       <!--判断响应头-->
       <div v-if="api.responseHeaderParameters">
-          <!-- 响应Header -->
-        <div class="api-title" v-html="$t('doc.responseHeaderParams')"></div>
+        <!-- 响应Header -->
+        <a-typography-title :heading="6" class="api-title">
+          <span v-html="$t('doc.responseHeaderParams')"></span>
+        </a-typography-title>
         <a-table :defaultExpandAllRows="expanRows" :columns="responseHeaderColumns"
           :data="api.responseHeaderParameters" rowKey="id" size="small" :pagination="page">
         </a-table>
       </div>
-      <!--响应参数-->
-        <!--  响应参数 -->
-      <div class="api-title" v-html="$t('doc.responseParams')"></div>
-       <a-table :defaultExpandAllRows="expanRows" :columns="responseParametersColumns" :data="multipData.data"
-         rowKey="id" size="small" :pagination="page">
-         <template #descriptionTemplate="{ record }">
-           <span v-html="record.description"></span>
-         </template>
-       </a-table>
-       <div class="api-title" v-html="$t('doc.responseExample')">
-       </div>
-       <a-row :id="'dwaggerDocumentShowEditor' + api.id" style="display: block">
-         <editor-show @showDescription="showResponseEditFieldDescription" :value="
-           multipData.responseBasicType
-             ? multipData.responseText
-             : multipData.responseValue
-         "></editor-show>
-
-       </a-row>
-     </div>
-   </div>
- </template>
+      <!-- 响应参数 -->
+      <a-typography-title :heading="6" class="api-title">
+        <span v-html="$t('doc.responseParams')"></span>
+      </a-typography-title>
+      <a-table :defaultExpandAllRows="expanRows" :columns="responseParametersColumns" :data="multipData.data"
+        rowKey="id" size="small" :pagination="page">
+        <template #descriptionTemplate="{ record }">
+          <span v-html="record.description"></span>
+        </template>
+      </a-table>
+      <a-typography-title :heading="6" class="api-title">
+        <span v-html="$t('doc.responseExample')"></span>
+      </a-typography-title>
+      <a-row :id="'dwaggerDocumentShowEditor' + api.id" style="display: block">
+        <editor-show @showDescription="showResponseEditFieldDescription" :value="
+          multipData.responseBasicType
+            ? multipData.responseText
+            : multipData.responseValue
+        "></editor-show>
+      </a-row>
+    </div>
+  </div>
+</template>
  <script>
  import KUtils from "@/core/utils";
  import { toArcoColumns } from "@/components/utils/DwaggerUtils";
@@ -173,12 +182,16 @@
  import { useGlobalsStore } from '@/store/modules/global.js'
  import { useDwaggerModels } from '@/store/dwaggerModels.js'
  import { useI18n } from 'vue-i18n'
+ import { IconCopy, IconFile, IconLink } from '@arco-design/web-vue/es/icon'
  import { Message as message } from '@arco-design/web-vue';export default {
    name: "Document",
    components: {
      editor: VAceEditor,
      "DataType": defineAsyncComponent(() => import('./DataType.vue')),
-     "EditorShow": defineAsyncComponent(() => import('./EditorShow.vue'))
+     "EditorShow": defineAsyncComponent(() => import('./EditorShow.vue')),
+     IconCopy,
+     IconFile,
+     IconLink,
    },
    props: {
      api: {
@@ -226,7 +239,16 @@
        multipCodeDatas: [],
        multipData: {},
        page: false,
-       reqParameters: []
+       reqParameters: [],
+       methodColors: {
+         GET: '#3491fa',
+         POST: '#00b42a',
+         PUT: '#ff7d00',
+         DELETE: '#f53f3f',
+         PATCH: '#0fc6c2',
+         HEAD: '#722ed1',
+         OPTIONS: '#165dff'
+       }
      };
    },
    created() {
@@ -252,6 +274,12 @@
      }
    },
    methods: {
+     methodColor(type) {
+       return this.methodColors[(type || '').toUpperCase()] || '#86909c';
+     },
+     mediaTypeText(value) {
+       return Array.isArray(value) ? value.join(', ') : (value || '-');
+     },
      getCurrentI18nInstance() {
        return this.messages[this.language];
      },
@@ -881,68 +909,94 @@
  };
  </script>
  <style lang="less" scoped>
- .api-tab {
-   margin-top: 15px;
+.api-header-card {
+  margin-top: 4px;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
+}
 
-   .arco-tag {
-     height: 32px;
-     line-height: 32px;
-   }
- }
+.api-header-card :deep(.arco-card-body) {
+  padding: 20px 24px;
+}
 
- .api-basic {
-   padding: 11px;
- }
+.api-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+}
 
- .api-basic-title {
-   font-size: 14px;
-   font-weight: 700;
- }
+.api-name {
+  flex: 1 1 auto;
+  min-width: 200px;
+  margin: 0;
+  line-height: 1.4;
+}
 
- .api-basic-body {
-   font-size: 14px;
-   font-family: -webkit-body;
- }
+.api-copy-actions {
+  flex-shrink: 0;
 
- .api-description {
-   border-left: 4px solid #ddd;
-   line-height: 30px;
- }
+  :deep(.arco-btn-text) {
+    color: #4e5969;
+  }
 
- .api-body-desc {
-   padding: 10px;
-   min-height: 35px;
-   box-sizing: border-box;
-   border: 1px solid #e8e8e8;
- }
+  :deep(.arco-btn-text:hover) {
+    color: var(--dwagger-primary);
+    background: #f2f3f5;
+  }
+}
 
- .arco-card-body {
-   padding: 5px;
- }
+.api-endpoint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
 
- .api-title {
-   margin-top: 12px;
-   margin-bottom: 8px;
-   font-size: 16px;
-   font-weight: 600;
-   height: 24px;
-   line-height: 24px;
-   border-left: 4px solid #00ab6d;
-   text-indent: 8px;
- }
+.api-method {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 68px;
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--api-method-color);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
 
- .content-line {
-   height: 25px;
-   line-height: 25px;
- }
+.api-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d2129;
+  word-break: break-all;
+}
 
- .content-line-count {
-   height: 35px;
-   line-height: 35px;
- }
+.api-meta {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #f2f3f5;
+}
 
- .divider {
-   margin: 4px 0;
- }
+.api-body-desc {
+  background: #fafbfc;
+  border-radius: 6px;
+}
 
- </style>
+.api-body-desc :deep(.arco-card-body) {
+  padding: 10px 12px;
+}
+
+.api-title {
+  margin: 20px 0 8px;
+  padding-left: 10px;
+  border-left: 4px solid var(--dwagger-primary);
+  line-height: 1.4;
+}
+</style>
