@@ -23,7 +23,7 @@
                 <span v-html="$t('settings.apiFilter')"></span>
               </a-checkbox>
               <a-select class="setting-select" @change="filterOptionsChange"
-                        :value="settings.enableFilterMultipartApiMethodType">
+                        :model-value="settings.enableFilterMultipartApiMethodType">
                 <a-option value="GET">GET</a-option>
                 <a-option value="POST">POST</a-option>
                 <a-option value="PUT">PUT</a-option>

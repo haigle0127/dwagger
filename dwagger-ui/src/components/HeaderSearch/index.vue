@@ -1,8 +1,9 @@
 <template>
   <span :class="className + ' headerSearch'" @click="enterSearchMode">
-    <a-auto-complete key="AutoComplete" :class="'input '+ (searchMode ? 'show' : '')" @change="(value)=>onSearchChange(value)" @search="onSearch" :value="value" allowClear>
-      <a-input :value="value" :placeholder="placeholder" @keydown="(e)=>onKeyDown(e)" @blur="()=>leaveSearchMode()" />
-    </a-auto-complete>
+    <a-auto-complete key="AutoComplete" :class="'input '+ (searchMode ? 'show' : '')"
+                     :model-value="value" @update:model-value="(v) => onSearchChange(v)"
+                     @search="(v) => onSearch && onSearch(v)" @keydown="(e) => onKeyDown(e)"
+                     :placeholder="placeholder" allowClear />
     <icon-search @click="buttonSearch" />
   </span>
 </template>

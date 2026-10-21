@@ -355,7 +355,7 @@ const langOptions = {
     tableHeader: [{
         title: '参数名称',
         dataIndex: 'name',
-        width: '15%',
+        width: '18%',
         scopedSlots: {
           customRender: 'name'
         }
@@ -364,7 +364,7 @@ const langOptions = {
         title: '参数值',
         className: 'column-money',
         dataIndex: 'value',
-        width: '65%',
+        width: '52%',
         scopedSlots: {
           customRender: 'paramContentLabel'
         }
@@ -372,7 +372,7 @@ const langOptions = {
       {
         title: '参数类型',
         dataIndex: 'in',
-        width: '10%',
+        width: '14%',
         scopedSlots: {
           customRender: 'paramTypeLable'
         }
@@ -398,6 +398,9 @@ const langOptions = {
     cancel:'取消',
     save: '保存',
     delete: '删除',
+    noteTitle: '全局参数说明',
+    noteLine1: 'Dwagger 提供全局参数 Debug 功能，支持 header（请求头）和 query（表单）两种入参方式。',
+    noteLine2: '在此添加参数后，调试页会自动带上对应参数。',
     note: 'Dwagger 提供全局参数Debug功能,目前默认提供header(请求头)、query(form)两种方式的入参.<br /><br />在此添加全局参数后,默认Debug调试tab页会带上该参数'
 
   },
@@ -415,6 +418,13 @@ const langOptions = {
     fastTitle: '<h5>通过 <kbd>ctrl + c</kbd> 复制以下地址,打开浏览器快速个性化设置</h5>'
   },
   auth: {
+    title: 'Authorize',
+    subtitle: '当前分组：{group}',
+    tip: '这里填写的是 OpenAPI securitySchemes 定义的认证参数，调试接口时会自动作为请求头发送。如果接口没有声明 security，需要后端补充全局 SecurityRequirement。',
+    placeholder: '请输入参数值',
+    clear: '清除',
+    empty: '当前分组没有可配置的认证参数',
+    saved: 'Authorize 参数已保存',
     cancel: '注销',
     save: '保存',
     tableHeader: {

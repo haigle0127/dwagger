@@ -9,6 +9,7 @@ dwagger 是为 Spring Boot 集成 OpenAPI 3 文档的增强解决方案。它提
 - 在线调试、请求参数缓存、AfterScript
 - Swagger Models 数据模型浏览
 - 文档管理：全局参数、离线文档、个性化设置
+- Authorize 鉴权：支持接口级与全局 `security`，填写后自动带入调试请求头
 - Basic 认证、OAuth2 授权
 - 生产环境屏蔽文档
 - 中文 / English 界面切换
@@ -35,7 +36,7 @@ Spring Boot 4.1.x：
 <dependency>
     <groupId>cn.haigle.dwagger</groupId>
     <artifactId>dwagger-openapi3-jakarta-spring-boot-starter</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 </dependency>
 ```
 
@@ -45,7 +46,7 @@ Spring Boot 3.5.x（排除内置的 springdoc 3.x，改用 springdoc 2.9.1）：
 <dependency>
     <groupId>cn.haigle.dwagger</groupId>
     <artifactId>dwagger-openapi3-jakarta-spring-boot-starter</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <exclusions>
         <exclusion>
             <groupId>org.springdoc</groupId>
@@ -66,7 +67,7 @@ Spring Boot 2.x：
 <dependency>
     <groupId>cn.haigle.dwagger</groupId>
     <artifactId>dwagger-openapi3-spring-boot-starter</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 </dependency>
 ```
 
@@ -74,10 +75,10 @@ Gradle：
 
 ```groovy
 // Spring Boot 4.x
-implementation 'cn.haigle.dwagger:dwagger-openapi3-jakarta-spring-boot-starter:0.0.1'
+implementation 'cn.haigle.dwagger:dwagger-openapi3-jakarta-spring-boot-starter:0.0.2'
 
 // Spring Boot 3.5.x
-implementation('cn.haigle.dwagger:dwagger-openapi3-jakarta-spring-boot-starter:0.0.1') {
+implementation('cn.haigle.dwagger:dwagger-openapi3-jakarta-spring-boot-starter:0.0.2') {
     exclude group: 'org.springdoc', module: 'springdoc-openapi-starter-webmvc-ui'
 }
 implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.9.1'
@@ -221,6 +222,27 @@ springdoc:
 ```
 
 UI 顶部会显示分组下拉框。只有一个分组时，可以设置 `dwagger.setting.enableGroup: false` 隐藏。
+
+## 接口鉴权（Authorize）
+
+在 `securitySchemes` 中声明认证方式后，左侧会显示 Authorize 页面。填写 token 并保存，调试接口时会自动作为请求头带入。
+
+`security` 可以写在接口上，也可以写在 OpenAPI 根节点（springdoc 常见做法）。根级 `security` 会被所有接口继承；scheme 缺少 `in` 时按请求头处理。全局 Bearer 示例：
+
+```java
+@Bean
+public OpenAPI openAPI() {
+    return new OpenAPI()
+            .components(new Components().addSecuritySchemes("Authorization",
+                    new SecurityScheme()
+                            .type(SecurityScheme.Type.HTTP)
+                            .scheme("bearer")
+                            .bearerFormat("JWT")))
+            .addSecurityItem(new SecurityRequirement().addList("Authorization"));
+}
+```
+
+`apiKey` 类型可用 `in(SecurityScheme.In.HEADER).name("Authorization")` 自定义请求头名称。
 
 ## 离线文档与自定义首页
 

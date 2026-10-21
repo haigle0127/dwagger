@@ -40,13 +40,15 @@
                   }}</a-tag><span>{{ $t('debug.headers') }}</span>
                 </span>
               </template>
-              <a-table v-if="headerTableFlag" bordered size="small" :rowSelection="rowSelection" :columns="headerColumn"
-                :pagination="pagination" :data="headerData" rowKey="id">
+              <a-table v-if="headerTableFlag" bordered size="small" :rowSelection="rowSelection"
+                @selection-change="(keys) => rowSelection.selectedRowKeys = keys"
+                :columns="headerColumn" :pagination="pagination" :data="headerData" rowKey="id">
                 <template #headerName="{ record }">
                   <!-- <a-select showSearch :options="headerOptions" placeholder="输入请求头" optionFilterProp="children" style="width: 100%">
                   </a-select> -->
-                  <a-auto-complete @select="(v) => headerSelect(v, record)" :data-id="record.id" @search="headerSearch"
-                                   @change="headerNameChange(record)" :value="record.name" :filterOption="headerNameFilterOption"
+                  <a-auto-complete :data-id="record.id" :model-value="record.name"
+                                   @update:model-value="(val) => headerNameChange(record, val)"
+                                   :filterOption="headerNameFilterOption"
                                    :allowClear="allowClear" :data="headerAutoOptions" style="width: 100%"
                                    :placeholder="$t('debug.tableHeader.holderName')" />
                 </template>
@@ -111,6 +113,7 @@
               </div>
               <a-row v-if="formFlag">
                 <a-table v-if="formTableFlag" bordered size="small" :rowSelection="rowFormSelection"
+                  @selection-change="(keys) => rowFormSelection.selectedRowKeys = keys"
                   :columns="formColumn" :pagination="pagination" :data="formData" rowKey="id">
                   <template #formName="{ record }">
                     <a-input :placeholder="record.description" :data-key="record.id" :defaultValue="record.name"
@@ -143,7 +146,7 @@
                              @change="formFileChange" />
                       <a-input-group>
                         <a-input style="width: 80%" :class="'dwagger-debug-param-require' + record.require"
-                                 :value="record.content" disabled />
+                                 :model-value="record.content" disabled />
                         <a-button @click="formFileUploadClick(record)"
                                   class="dwagger-api-send" style="width:80px;" type="primary">{{ $t('debug.form.upload') }}</a-button>
                       </a-input-group>
@@ -157,6 +160,7 @@
               </a-row>
               <a-row v-if="urlFormFlag">
                 <a-table v-if="urlFormTableFlag" bordered size="small" :rowSelection="rowUrlFormSelection"
+                  @selection-change="(keys) => rowUrlFormSelection.selectedRowKeys = keys"
                   :columns="urlFormColumn" :pagination="pagination" :data="urlFormData" rowKey="id">
                   <template #urlFormName="{ record }">
                     <a-input :placeholder="record.description" :data-key="record.id" :defaultValue="record.name"
@@ -183,6 +187,7 @@
                 <a-row v-if="rawFormFlag">
                   <!--如果存在raw类型的参数则显示该表格-->
                   <a-table v-if="rawFormTableFlag" bordered size="small" :rowSelection="rowRawFormSelection"
+                    @selection-change="(keys) => rowRawFormSelection.selectedRowKeys = keys"
                     :columns="urlFormColumn" :pagination="pagination" :data="rawFormData" rowKey="id">
                     <!--参数名称-->
                     <template #urlFormName="{ record }">
@@ -317,34 +322,21 @@ export default {
       headerOptions: constant.debugRequestHeaderOptions,
       headerCount: 0,
       headerCountFlag: false,
-      headerSelectName: "",
       selectedRowKeys: [],
       // 是否允许有请求参数,一般get情况下直接屏蔽
       requestParameterAllow: true,
-      // 请求头的选中框
+      // 各表格的选中项，由 Arco 的 selection-change 事件回写
       rowSelection: {
-        selectedRowKeys: [],
-        onChange: (selectrowkey, selectrows) => {
-          this.rowSelection.selectedRowKeys = selectrowkey;
-        }
+        selectedRowKeys: []
       },
       rowFormSelection: {
-        selectedRowKeys: [],
-        onChange: (selectrowkey, selectrows) => {
-          this.rowFormSelection.selectedRowKeys = selectrowkey;
-        }
+        selectedRowKeys: []
       },
       rowRawFormSelection: {
-        selectedRowKeys: [],
-        onChange: (selectrowkey, selectrows) => {
-          this.rowRawFormSelection.selectedRowKeys = selectrowkey;
-        }
+        selectedRowKeys: []
       },
       rowUrlFormSelection: {
-        selectedRowKeys: [],
-        onChange: (selectrowkey, selectrows) => {
-          this.rowUrlFormSelection.selectedRowKeys = selectrowkey;
-        }
+        selectedRowKeys: []
       },
       headerData: [],
       headerTableFlag: true,
@@ -407,10 +399,13 @@ export default {
     // this.initShowFormTable();
     // 监听全局参数更新事件
     eventBus.on('global-parameters-updated', this.handleGlobalParametersUpdate);
+    // 监听 Authorize 认证参数保存事件
+    eventBus.on('security-updated', this.handleSecurityUpdate);
   },
   beforeUnmount() {
     // 组件销毁前移除事件监听
     eventBus.off('global-parameters-updated', this.handleGlobalParametersUpdate);
+    eventBus.off('security-updated', this.handleSecurityUpdate);
   },
   watch: {
     language: function (val, oldval) {
@@ -777,26 +772,12 @@ export default {
         if (KUtils.arrNotEmpty(val)) {
           // 不为空
           val.forEach(security => {
-            let securityHeaderTmpValue = KUtils.getOAuth2BearerValue(security.schema, security.value);
-            // console.log(security)
-            var newHeader = {
-              id: KUtils.randomMd5(),
-              name: security.name,
-              content: securityHeaderTmpValue,
-              require: true,
-              description: "",
-              enums: null, // 枚举下拉框
-              // 枚举是否支持多选('default' | 'multiple' )
-              enumsMode: "default",
-              new: false
-            };
             if (security.in == 'header') {
               // console.log("addHeader.", security)
-              // this.headerData.push(newHeader);
               // 判断该接口是否security-Authorize
               if (this.api.securityFlag) {
                 if (this.api.securityKeys.includes(security.key)) {
-                  this.addDebugHeader(newHeader);
+                  this.addDebugHeader(this.createSecurityHeader(security));
                 }
               }
             }
@@ -809,6 +790,38 @@ export default {
         // 计算heaer数量
         this.headerResetCalc();
       });
+    },
+    createSecurityHeader(security) {
+      return {
+        id: KUtils.randomMd5(),
+        name: security.name,
+        content: KUtils.getOAuth2BearerValue(security.schema, security.value),
+        require: true,
+        description: "",
+        enums: null, // 枚举下拉框
+        // 枚举是否支持多选('default' | 'multiple' )
+        enumsMode: "default",
+        new: false,
+        // 标记来源，Authorize 保存后便于替换旧值
+        source: "security"
+      };
+    },
+    // Authorize 页保存后，同步当前调试页的认证请求头
+    handleSecurityUpdate(data) {
+      if (!data || data.instanceId !== this.api.instanceId) {
+        return;
+      }
+      this.headerData = this.headerData.filter(header => header.source !== "security");
+      (data.securityArrs || []).forEach(security => {
+        if (security.in == "header" && KUtils.strNotBlank(security.value) &&
+            this.api.securityFlag && this.api.securityKeys.includes(security.key)) {
+          this.addDebugHeader(this.createSecurityHeader(security));
+        }
+      });
+      const headerIds = this.headerData.map(header => header.id);
+      this.rowSelection.selectedRowKeys = this.rowSelection.selectedRowKeys.filter(id => headerIds.includes(id));
+      this.initSelectionHeaders();
+      this.headerResetCalc();
     },
     updateHeaderFromCacheApi(cacheApi) {
       // 从缓存中更新header参数
@@ -1687,32 +1700,12 @@ export default {
         return false
       }
     },
-    headerSelect(value, record) {
-      this.headerSelectName = value;
+    headerNameChange(record, value) {
       record.name = value
-      record.new = false
-    },
-    headerSearch(value) {
-      this.headerSelectName = value;
-    },
-    headerNameChange(record) {
-      // 判断是否是new标志位,如果是new标志位,当前标志位置为false，重新生成一个new标志位的行
+      // 新建行首次输入后转为正式行，并补一行新的占位行
       if (record.new) {
-        this.headerData.forEach(header => {
-          if (header.id == record.id) {
-            header.name = this.headerSelectName;
-            header.new = false;
-          }
-        });
-        // 插入一行
-        this.addNewLineHeader();
-      } else {
-        this.headerData.forEach(header => {
-          if (header.id == record.id) {
-            header.name = this.headerSelectName;
-            header.new = false;
-          }
-        });
+        record.new = false
+        this.addNewLineHeader()
       }
       this.initSelectionHeaders(record.id);
       this.headerResetCalc();

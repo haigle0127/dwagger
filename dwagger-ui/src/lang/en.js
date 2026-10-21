@@ -365,7 +365,7 @@ const langOptions = {
     tableHeader: [{
         title: 'name',
         dataIndex: 'name',
-        width: '15%',
+        width: '18%',
         scopedSlots: {
           customRender: 'name'
         }
@@ -374,7 +374,7 @@ const langOptions = {
         title: 'value',
         className: 'column-money',
         dataIndex: 'value',
-        width: '65%',
+        width: '52%',
         scopedSlots: {
           customRender: 'paramContentLabel'
         }
@@ -382,7 +382,7 @@ const langOptions = {
       {
         title: 'type',
         dataIndex: 'in',
-        width: '10%',
+        width: '14%',
         scopedSlots: {
           customRender: 'paramTypeLable'
         }
@@ -408,6 +408,9 @@ const langOptions = {
     cancel:'cancel',
     save: 'Save',
     delete: 'Delete',
+    noteTitle: 'About global parameters',
+    noteLine1: 'Dwagger provides global Debug parameters, supporting header and query (form) inputs.',
+    noteLine2: 'Once added here, the parameter is automatically included on the Debug tab.',
     note: 'Dwagger Provide global parameter Debug function, currently default to provide header (request header), query (form) two ways of entry.<br /><br />After adding the global parameter here, the default Debug debug tab page will take this parameter.'
 
   },
@@ -425,6 +428,13 @@ const langOptions = {
     fastTitle: '<h5>Copy the following address through <kbd>ctrl + c</kbd> to open the browser'
   },
   auth: {
+    title: 'Authorize',
+    subtitle: 'Group: {group}',
+    tip: 'These values come from the OpenAPI securitySchemes and are sent as request headers when debugging. If the document declares no security, add a global SecurityRequirement on the backend.',
+    placeholder: 'Enter value',
+    clear: 'Clear',
+    empty: 'No authentication parameters in this group',
+    saved: 'Authorize parameters saved',
     cancel: 'Logout',
     save: 'Save',
     tableHeader: {

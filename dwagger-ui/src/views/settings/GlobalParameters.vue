@@ -1,21 +1,25 @@
 <template>
   <a-layout-content class="dwagger-body-content">
-    <div class="globalparameters">
-      <a-alert type="info" class="gp-tip">
-        <span v-html="$t('global.note')"></span>
+    <a-card :bordered="false" class="gp-card">
+      <template #title>{{ $t('global.tab') }}</template>
+      <template #extra>
+        <a-button type="primary" @click="addGlobalParameters">
+          <template #icon>
+            <icon-plus/>
+          </template>
+          {{ $t('global.add') }}
+        </a-button>
+      </template>
+      <a-alert type="info" class="gp-tip" :title="$t('global.noteTitle')">
+        <div class="gp-tip-content">
+          <p>{{ $t('global.noteLine1') }}</p>
+          <p>{{ $t('global.noteLine2') }}</p>
+        </div>
       </a-alert>
-    </div>
-    <div class="globalparameters">
-      <a-button type="primary" @click="addGlobalParameters">
-        <icon-plus type="plus" />
-        <span>{{ $t('global.add') }}</span>
-      </a-button>
-    </div>
-    <div class="globalparameters">
       <a-table :columns="columns" rowKey="pkid" size="small" :data="globalParameters" :pagination="pagination"
                bordered>
         <template #operation="{ record }">
-          <a-button status="danger" @click="deleteParam(record)" style="margin-left:10px;">
+          <a-button type="text" status="danger" @click="deleteParam(record)">
             <template #icon>
               <icon-delete/>
             </template>
@@ -23,8 +27,8 @@
           </a-button>
         </template>
         <template #paramContentLabel="{ record }">
-          <a-textarea :default-value="record.value" @change="(val) => headerContentChange(val, record)"
-                      :auto-size="{ minRows: 2, maxRows: 6 }" allow-clear />
+          <a-input :default-value="record.value" :placeholder="$t('global.form.validate.value')"
+                   @change="(val) => headerContentChange(val, record)" allow-clear />
         </template>
         <template #paramTypeLable="{ record }">
           <a-select :default-value="record.in" @change="(val) => globalParamTypeChange(val, record)">
@@ -33,7 +37,7 @@
           </a-select>
         </template>
       </a-table>
-    </div>
+    </a-card>
     <!--参数编辑及新增-->
     <a-modal :title="modelTitle" :cancelText="$t('global.cancel')" :okText="$t('global.ok')" v-model:visible="visible"
              @ok="handleOk" @cancel="handleCancel">
@@ -284,16 +288,22 @@ import { Message as message } from '@arco-design/web-vue';export default {
 </script>
 
 <style scoped>
-.globalparameters {
-  width: 98%;
-  margin: 10px auto;
+.gp-card {
+  margin: 20px 24px;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
 }
 
 .gp-tip {
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
-.gptable {
-  margin-top: 10px;
+.gp-tip-content p {
+  margin: 0;
+  line-height: 22px;
+}
+
+.gp-tip-content p + p {
+  margin-top: 2px;
 }
 </style>

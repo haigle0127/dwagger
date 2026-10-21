@@ -355,7 +355,7 @@ const langOptions = {
     tableHeader: [{
       title: 'パラメータ名',
       dataIndex: 'name',
-      width: '15%',
+      width: '18%',
       scopedSlots: {
         customRender: 'name'
       }
@@ -364,7 +364,7 @@ const langOptions = {
       title: 'パラメータ値',
       className: 'column-money',
       dataIndex: 'value',
-      width: '65%',
+      width: '52%',
       scopedSlots: {
         customRender: 'paramContentLabel'
       }
@@ -372,7 +372,7 @@ const langOptions = {
     {
       title: 'パラメータのタイプ',
       dataIndex: 'in',
-      width: '10%',
+      width: '14%',
       scopedSlots: {
         customRender: 'paramTypeLable'
       }
@@ -398,6 +398,9 @@ const langOptions = {
     cancel: 'キャンセル',
     save: '保存',
     delete: '削除',
+    noteTitle: 'グローバルパラメータについて',
+    noteLine1: 'Dwagger はグローバル Debug パラメータを提供し、header（リクエストヘッダ）と query（フォーム）の 2 種類の入力をサポートします。',
+    noteLine2: 'ここで追加したパラメータは、Debug タブに自動的に付与されます。',
     note: 'Dwaggerは全体のパラメータデバッグ機能を提供しており、現在はデフォルトでheader（リクエストヘッダ）およびquery（フォーム）の2つの方法の入力が提供されています。<br /><br />ここに全体のパラメータを追加すると、デフォルトのデバッグタブにそのパラメータが表示されます。'
 
   },
@@ -415,6 +418,13 @@ const langOptions = {
     fastTitle: '<h5>以下のアドレスを <kbd>ctrl + c</kbd> でコピーして、ブラウザを開いて個性化設定を行います。</h5>'
   },
   auth: {
+    title: 'Authorize',
+    subtitle: '現在のグループ：{group}',
+    tip: 'ここで入力するのは OpenAPI securitySchemes の認証パラメータです。デバッグ時にリクエストヘッダーとして送信されます。ドキュメントに security が定義されていない場合は、バックエンドでグローバルな SecurityRequirement を追加してください。',
+    placeholder: '値を入力してください',
+    clear: 'クリア',
+    empty: 'このグループには設定可能な認証パラメータがありません',
+    saved: 'Authorize パラメータを保存しました',
     cancel: '注销',
     save: '保存',
     tableHeader: {
