@@ -40,7 +40,7 @@
           </a-button>
         </a-row>
         <a-row class="dwagger-debug-response-mt">
-          <a-textarea :rows="10" :model-value="responseRawText" />
+          <a-textarea class="dwagger-debug-raw-textarea" :rows="10" :model-value="responseRawText" />
         </a-row>
       </a-tab-pane>
       <a-tab-pane title="Headers" key="debugHeaders" :disabled="!responseStatus">

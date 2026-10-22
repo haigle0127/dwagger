@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <editor :value="value" @init="editorInit" :lang="lang" theme="eclipse" width="100%" :style="{height: editorHeight + 'px'}"
-      @input="change"></editor>
+  <div class="dwagger-code-block">
+    <editor :value="value" @init="editorInit" :lang="lang" theme="eclipse" width="100%"
+      :options="editorOptions" :style="{height: editorHeight + 'px'}" @input="change"></editor>
   </div>
 </template>
 
@@ -38,7 +38,14 @@ export default {
     return {
       lang: "json",
       editor: null,
-      editorHeight: 200
+      editorHeight: 200,
+      editorOptions: {
+        // 示例区只用于阅读，去掉行号和高亮，给 JSON 留出更多展示空间
+        showGutter: false,
+        showPrintMargin: false,
+        highlightActiveLine: false,
+        displayIndentGuides: false
+      }
     };
   },
   methods: {
@@ -53,7 +60,8 @@ export default {
         if (length_editor == 1) {
           length_editor = 10;
         }
-        that.editorHeight = length_editor * 16;
+        const lineHeight = that.editor.renderer.lineHeight || 22;
+        that.editorHeight = length_editor * lineHeight;
       }, 300);
     },
     editorInit(editor) {
@@ -66,6 +74,8 @@ export default {
         this.lang = "xml";
       }
       // require("brace/theme/eclipse");
+      // 内边距交给外层 .dwagger-code-block，避免 Ace 内部再缩进
+      this.editor.renderer.setPadding(0);
       // 重设高度
       this.resetEditorHeight();
       this.editor.renderer.on("afterRender", function () {

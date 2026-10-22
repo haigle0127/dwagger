@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="dwagger-code-block">
     <editor :value="value" @init="editorInit" :lang="lang" @input="change" theme="eclipse" width="100%"
-      :style="{height: editorHeight + 'px'}"></editor>
+      :options="editorOptions" :style="{height: editorHeight + 'px'}"></editor>
   </div>
 </template>
 
@@ -32,7 +32,13 @@ export default {
     return {
       lang: "javascript",
       editor: null,
-      editorHeight: 200
+      editorHeight: 200,
+      editorOptions: {
+        showPrintMargin: false,
+        highlightActiveLine: false,
+        displayIndentGuides: false,
+        showFoldWidgets: false
+      }
     };
   },
   methods: {
@@ -44,8 +50,7 @@ export default {
         if (length_editor == 1) {
           length_editor = 10;
         }
-        var rows_editor = length_editor * 16;
-        that.editorHeight = rows_editor;
+        that.editorHeight = length_editor * (that.editor.renderer.lineHeight || 22);
       }, 300);
     },
     change(value) {
@@ -64,6 +69,7 @@ export default {
       if (this.tsMode) {
         this.lang = "typescript";
       }
+      this.editor.renderer.setPadding(0);
       // 重设高度
       this.resetEditorHeight();
       this.editor.renderer.on("afterRender", function () {

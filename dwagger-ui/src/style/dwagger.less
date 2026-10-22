@@ -851,13 +851,15 @@ body {
   min-height: 0;
 }
 
-/* 响应编辑器白底和白页面会糊成一片，用描边容器把它框出来 */
+/* 响应编辑器：浅底色 + 描边 + 内边距，和文档里的示例代码块同一套观感 */
 .dwagger-debug-response [id^='responseEditorContent'] {
   box-sizing: border-box;
   width: 100%;
   height: var(--debug-response-body-height);
+  padding: 14px 18px;
   border: 1px solid #e5e6eb;
-  border-radius: 6px;
+  border-radius: 8px;
+  background-color: #f8fafc;
   overflow: hidden;
 }
 
@@ -868,12 +870,9 @@ body {
   height: 100%;
 }
 
-/* raw 请求体的编辑器用同一套描边，两个方向保持一致 */
+/* raw 请求体的编辑器外框由 .dwagger-code-block 提供，这里只留间距 */
 .dwagger-debug-request-editor {
   margin-top: 8px;
-  border: 1px solid #e5e6eb;
-  border-radius: 6px;
-  overflow: hidden;
 }
 
 /* 未发送时的响应占位：和编辑器同顶、同高度、同实线描边 */
@@ -885,8 +884,8 @@ body {
   justify-content: center;
   height: var(--debug-response-body-height);
   border: 1px solid #e5e6eb;
-  border-radius: 6px;
-  background-color: #fafbfc;
+  border-radius: 8px;
+  background-color: #f8fafc;
 
   .arco-empty-image {
     margin-bottom: 8px;
@@ -899,14 +898,33 @@ body {
 
 .dwagger-debug-response-curl {
   margin: 10px 0;
-  font: 100 12px/18px monaco, andale mono, courier new;
-  padding: 10px 12px;
+  padding: 14px 18px;
   border: 1px solid #e5e6eb;
-  border-radius: 6px;
-  background-color: #f7f8fa;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 14px;
+  line-height: 23px;
   white-space: pre-wrap;
   word-wrap: break-word;
-  color: @text-main;
+  color: #24292f;
+}
+
+/* Raw 标签页的纯文本展示也用等宽字体和浅底，和上面的 JSON 区一致 */
+.dwagger-debug-raw-textarea.arco-textarea-wrapper {
+  padding: 14px 18px;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
+  background-color: #f8fafc;
+
+  .arco-textarea {
+    padding: 0;
+    background-color: transparent;
+    color: #24292f;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 14px;
+    line-height: 23px;
+  }
 }
 
 /* 响应状态：标签和数值都交给 Arco，只有状态码按 2xx/4xx/5xx 着色 */
@@ -922,13 +940,101 @@ body {
   }
 }
 
+/* 文档里的请求/响应示例、OpenAPI、脚本编辑器统一用这个容器 */
+.dwagger-code-block {
+  box-sizing: border-box;
+  width: 100%;
+  /* 上下留白由容器给，Ace 内部 padding 已置 0，避免双重缩进 */
+  padding: 14px 18px;
+  border: 1px solid #e5e6eb;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  overflow: hidden;
+
+  .ace_editor {
+    border-radius: 0;
+  }
+}
+
 /* 全站 * 字体规则会把代码区变成 UI 字体，这里统一切回等宽 */
 .ace_editor,
 .ace_editor .ace_gutter,
 .ace_editor .ace_content,
 .ace_editor .ace_text-layer,
 .ace_editor .ace_line {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+}
+
+/* 默认 12px/16px 太挤，代码区统一放大到 14px/23px */
+.ace_editor {
+  font-size: 14px !important;
+  line-height: 23px !important;
+}
+
+/* 覆盖 eclipse 的高饱和紫/蓝，换成接近参考图的低饱和浅色配色 */
+.ace-eclipse {
+  background-color: transparent !important;
+  color: #24292f !important;
+}
+
+.ace-eclipse .ace_gutter {
+  border-right: 1px solid #eef1f6;
+  background-color: #f5f7fa !important;
+  color: #a5adba;
+}
+
+.ace-eclipse .ace_gutter-active-line {
+  background-color: transparent !important;
+}
+
+.ace-eclipse .ace_print-margin {
+  display: none;
+}
+
+.ace-eclipse .ace_cursor {
+  color: #2563eb;
+}
+
+.ace-eclipse .ace_variable {
+  color: #1f2937 !important;
+  font-weight: 500;
+}
+
+.ace-eclipse .ace_string {
+  color: #0b7a3b !important;
+}
+
+.ace-eclipse .ace_constant.ace_numeric {
+  color: #0550ae !important;
+}
+
+.ace-eclipse .ace_constant.ace_language {
+  color: #8250df !important;
+}
+
+.ace-eclipse .ace_paren,
+.ace-eclipse .ace_punctuation.ace_operator {
+  color: #6b7280 !important;
+}
+
+.ace-eclipse .ace_comment {
+  color: #8b949e !important;
+}
+
+.ace-eclipse .ace_meta.ace_tag {
+  color: #0550ae !important;
+}
+
+.ace-eclipse .ace_entity.ace_other.ace_attribute-name {
+  color: #8250df !important;
+}
+
+.ace-eclipse .ace_marker-layer .ace_selection {
+  background: #dbeafe;
+}
+
+.ace-eclipse .ace_marker-layer .ace_active-line {
+  background: transparent !important;
 }
 
 .dwagger-debug-ace-editor {
