@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'dwagger-debug-ace-root': debugResponse }">
+  <div :class="debugResponse ? 'dwagger-debug-ace-root' : 'dwagger-code-block'">
     <div v-if="debugResponse" class="dwagger-debug-ace-wrap">
       <editor class="dwagger-debug-ace-editor" @input="change" :options="debugOptions" v-model:value="valueText" @init="editorInit"
         :lang="mode" theme="eclipse" width="100%" style="height: 100%"></editor>
@@ -56,10 +56,11 @@ export default {
       editor: null,
       editorHeight: 200,
       debugOptions: {
-        // 响应只读，光标和当前行高亮都会干扰阅读
+        // 响应只读，光标、行号和当前行高亮都会干扰阅读
         readOnly: true,
         autoScrollEditorIntoView: true,
         displayIndentGuides: false,
+        showGutter: false,
         fixedWidthGutter: true,
         showPrintMargin: false,
         highlightActiveLine: false
@@ -89,7 +90,7 @@ export default {
         if (length_editor > 20) {
           length_editor = 20;
         }
-        var rows_editor = length_editor * 16;
+        var rows_editor = length_editor * (that.editor.renderer.lineHeight || 22);
         if (rows_editor > 2000) {
           rows_editor = 2000;
         }
@@ -123,6 +124,8 @@ export default {
       } else if (this.mode == "javascript") {
       } */
       // this.editor.gotoLine(1);
+      // 内边距由外层容器统一控制，Ace 内部不再留白
+      this.editor.renderer.setPadding(0);
       if (this.debugResponse) {
         // 启动换行
         this.editor.getSession().setUseWrapMode(true);
