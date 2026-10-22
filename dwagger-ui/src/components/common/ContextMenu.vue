@@ -8,6 +8,7 @@
 </template>
 
 <script>
+import { markRaw } from 'vue'
 import { IconCloseCircle, IconLeft, IconRight } from '@arco-design/web-vue/es/icon'
 
 export default {
@@ -38,10 +39,11 @@ export default {
       onMousedown: null,
       onContextmenu: null,
       // 菜单项的图标名沿用 i18n 里的 ant 命名，这里映射成 Arco 图标
+      // 组件对象不能进响应式，否则 Vue 会警告并产生额外代理开销
       iconMap: {
-        'caret-left': IconLeft,
-        'caret-right': IconRight,
-        'close-circle': IconCloseCircle
+        'caret-left': markRaw(IconLeft),
+        'caret-right': markRaw(IconRight),
+        'close-circle': markRaw(IconCloseCircle)
       }
     };
   },

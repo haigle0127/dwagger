@@ -11,6 +11,12 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: './',
+  // 显式声明 Vue 编译期特性开关，避免开发版运行时的 feature flag 警告
+  define: {
+    __VUE_OPTIONS_API__: true,
+    __VUE_PROD_DEVTOOLS__: false,
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false
+  },
   plugins: [
     vue(),
     vueJsx(),

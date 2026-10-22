@@ -27,7 +27,7 @@ export default {
       default: false,
     }
   },
-  emits: ['showDescription'],
+  emits: ['showDescription', 'change'],
   data() {
     return {
       lang: "javascript",

@@ -44,6 +44,8 @@ marked.setOptions({
     sanitize: false,
     smartLists: true,
     smartypants: false,
+    mangle: false,
+    headerIds: false,
     renderer: renderer
 })
 export default {
