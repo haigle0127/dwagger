@@ -3,7 +3,6 @@ package com.haigle.dwagger.annotations;
 import java.lang.annotation.*;
 
 /**
- * Note: 自Dwagger 4.0版本起，功能保留，但目前阶段放弃维护此属性值，建议开发者建实体类，后续有迭代在更新
  * @since 1.9.5
  * @author haigle
  */

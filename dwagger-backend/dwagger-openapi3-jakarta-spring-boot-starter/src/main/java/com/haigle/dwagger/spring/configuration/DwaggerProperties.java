@@ -1,6 +1,5 @@
 package com.haigle.dwagger.spring.configuration;
 
-import com.haigle.dwagger.core.extend.OpenApiExtendSetting;
 import com.haigle.dwagger.core.model.MarkdownProperty;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

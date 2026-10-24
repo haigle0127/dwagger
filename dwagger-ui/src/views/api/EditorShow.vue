@@ -8,6 +8,7 @@
 <script>
 import { VAceEditor } from 'vue3-ace-editor'
 import ace from "ace-builds";
+import { ACE_JSON_MODE } from "@/core/aceJsonMode";
 import modeJson from "ace-builds/src-noconflict/mode-json?url";
 import modeXml from "ace-builds/src-noconflict/mode-xml?url";
 import themeEclipse from "ace-builds/src-noconflict/theme-eclipse?url";
@@ -36,7 +37,7 @@ export default {
   emits: ['showDescription', 'change'],
   data() {
     return {
-      lang: "json",
+      lang: ACE_JSON_MODE,
       editor: null,
       editorHeight: 200,
       editorOptions: {

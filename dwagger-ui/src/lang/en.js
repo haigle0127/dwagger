@@ -145,7 +145,7 @@ const langOptions = {
       {
         title: 'operation',
         dataIndex: 'operation',
-        width: '10%',
+        width: 92,
         scopedSlots: {
           customRender: 'operation'
         }
@@ -179,7 +179,7 @@ const langOptions = {
       {
         title: 'operation',
         dataIndex: 'operation',
-        width: '10%',
+        width: 92,
         scopedSlots: {
           customRender: 'operation'
         }
@@ -205,7 +205,7 @@ const langOptions = {
       {
         title: 'operation',
         dataIndex: 'operation',
-        width: '10%',
+        width: 92,
         scopedSlots: {
           customRender: 'operation'
         }
@@ -516,6 +516,7 @@ const langOptions = {
     headers:'Headers',
     params: 'Params',
     noParams: 'No parameters',
+    arrayHint: 'Array, separate multiple values with commas',
     form:{
       upload:'Upload',
       itemText:'text',

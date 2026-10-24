@@ -148,13 +148,11 @@
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${dwagger-springdoc-openapi.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${dwagger-slf4j.version}</version>
             </dependency>
-            <!-- 修复 CVE-2026-19880 / CVE-2026-104721，springdoc 默认传递的 1.5.34 有漏洞 -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
@@ -267,7 +265,6 @@
                         </java>
                     </configuration>
                     <executions>
-
                         <execution>
                             <goals>
                                 <goal>apply</goal>
@@ -360,7 +357,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- Maven Central Portal 发布，旧的 OSSRH 接口已于 2025 年停用 -->
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>

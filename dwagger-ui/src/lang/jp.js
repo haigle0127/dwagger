@@ -146,7 +146,7 @@ const langOptions = {
       {
         title: 'オプション',
         dataIndex: 'operation',
-        width: '10%',
+        width: 92,
         scopedSlots: {
           customRender: 'operation'
         }
@@ -180,7 +180,7 @@ const langOptions = {
       {
         title: 'オプション',
         dataIndex: 'operation',
-        width: '10%',
+        width: 92,
         scopedSlots: {
           customRender: 'operation'
         }
@@ -206,7 +206,7 @@ const langOptions = {
       {
         title: 'オプション',
         dataIndex: 'operation',
-        width: '10%',
+        width: 92,
         scopedSlots: {
           customRender: 'operation'
         }
@@ -507,6 +507,7 @@ const langOptions = {
     headers: 'リクエストヘッダ',
     params: 'リクエストパラメータ',
     noParams: 'パラメータなし',
+    arrayHint: '配列パラメータ、複数の値はカンマで区切ってください',
     form: {
       upload: 'ファイルの選択',
       itemText: 'テキスト',

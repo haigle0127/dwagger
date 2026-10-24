@@ -618,7 +618,7 @@ body {
     padding-bottom: 4px;
   }
 
-  /* 操作列和表头一起右对齐，删除按钮贴齐表格右缘 */
+  /* 操作列和表头一起右对齐，内边距与内容列保持一致 */
   .arco-table-th:last-child,
   .arco-table-td:last-child {
     text-align: right;
@@ -627,20 +627,17 @@ body {
   /* Arco 表头单元格是 flex 容器，text-align 推不动标题，需要让内容靠右 */
   .arco-table-th:last-child .arco-table-cell {
     justify-content: flex-end;
-    padding-right: 8px;
-  }
-
-  .arco-table-td:last-child .arco-table-cell {
-    padding-right: 8px;
   }
 }
 
-/* 表格里的删除动作：文字按钮，红色悬停提示危险操作 */
+/* 表格里的删除动作：与同行输入框同高同字号，红色悬停提示危险操作 */
 .dwagger-debug-row-action.arco-btn {
-  height: 28px;
-  padding: 0 8px;
+  height: 30px;
+  padding: 0 6px;
+  /* 抵消按钮右内边距，文字右缘才能和“操作”表头对齐 */
+  margin-right: -6px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
 
   &:hover {
@@ -1002,6 +999,18 @@ body {
 
 .ace-eclipse .ace_string {
   color: #0b7a3b !important;
+}
+
+/* 等宽字体下连续引号会贴死，给空字符串留 2px 视觉缝隙（远小于一个空格） */
+.ace-eclipse .ace_empty {
+  letter-spacing: 2px;
+  /* 抵消 letter-spacing 在末尾多出的宽度，避免把后面的逗号推开 */
+  margin-right: -2px;
+}
+
+/* 空数组/空对象的左右括号同样贴在一起，补一点间距 */
+.ace-eclipse .ace_lparen + .ace_rparen {
+  margin-left: 2px;
 }
 
 .ace-eclipse .ace_constant.ace_numeric {

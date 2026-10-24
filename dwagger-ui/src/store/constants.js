@@ -315,7 +315,7 @@ const constants = {
   {
     title: '操作',
     dataIndex: 'operation',
-    width: '10%',
+    width: 92,
     scopedSlots: {
       customRender: 'operation'
     }
@@ -347,7 +347,7 @@ const constants = {
   {
     title: '操作',
     dataIndex: 'operation',
-    width: '10%',
+    width: 92,
     scopedSlots: {
       customRender: 'operation'
     }
@@ -371,7 +371,7 @@ const constants = {
   {
     title: '操作',
     dataIndex: 'operation',
-    width: '10%',
+    width: 92,
     scopedSlots: {
       customRender: 'operation'
     }

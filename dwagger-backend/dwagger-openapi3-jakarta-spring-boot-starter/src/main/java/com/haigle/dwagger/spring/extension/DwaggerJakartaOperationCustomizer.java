@@ -44,13 +44,13 @@ public class DwaggerJakartaOperationCustomizer implements GlobalOperationCustomi
             }
         }
         
-        // 方法重名则进行处理，防止url覆盖
-        String className = handlerMethod.getBeanType().getSimpleName();
-        String existingId = operation.getOperationId();
-        String methodName = handlerMethod.getMethod().getName();
-        
-        String newId = (StrUtil.isBlank(existingId)) ? className + StrUtil.UNDERLINE + existingId : className + StrUtil.UNDERLINE + methodName;
-        operation.setOperationId(newId);
+        // 未指定 operationId 时用「类名_方法名」兜底，避免不同控制器里的同名方法冲突
+        // 已显式指定的保留，不要覆盖（重名由 springdoc 的 OperationIdCustomizer 追加序号）
+        if (StrUtil.isBlank(operation.getOperationId())) {
+            String className = handlerMethod.getBeanType().getSimpleName();
+            String methodName = handlerMethod.getMethod().getName();
+            operation.setOperationId(className + StrUtil.UNDERLINE + methodName);
+        }
         
         return operation;
     }
