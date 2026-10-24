@@ -4,7 +4,7 @@ dwagger 是 Spring Boot 的 OpenAPI 3 文档增强方案：springdoc 负责生�
 
 核心能力：分组、搜索、标签页、排序、在线调试、请求参数缓存、AfterScript、Swagger Models、文档管理、Authorize / Basic / OAuth2、生产环境屏蔽、中英文切换。
 
-> 本文档同时面向人类与 AI 代理。文中的路径、坐标、端口和验证命令均在本仓库实测。
+> 本文档同时面向人类与 AI 代理。文中的路径、坐标、端口和验证命令均实测可用。
 
 ## 1. 仓库结构
 
@@ -15,7 +15,6 @@ dwagger 是 Spring Boot 的 OpenAPI 3 文档增强方案：springdoc 负责生�
 | `dwagger-backend/dwagger-openapi3-ui/` | 只含前端静态资源的 jar（webjar），`/doc.html` 由它提供 |
 | `dwagger-backend/dwagger-openapi3-spring-boot-starter/` | Spring Boot 2.x（javax）Starter |
 | `dwagger-backend/dwagger-openapi3-jakarta-spring-boot-starter/` | Spring Boot 3.x / 4.x（jakarta）Starter |
-| `dwagger-integration-test/` | 可直接运行的集成示例（Boot 4.1.1，端口 8080） |
 
 ## 2. 兼容矩阵
 
@@ -164,6 +163,7 @@ curl -s -o /dev/null -w "%{http_code}\n" "http://localhost:8080/$JS"
 | 分组下拉为空或缺少某个分组 | `group-configs[].packages-to-scan` 没匹配到 Controller 包 | 改成实际包名；不分组时删除 `group-configs`，使用 `/v3/api-docs` |
 | 页面能打开但接口列表为空 | Controller 不在扫描包内，或类上缺少 `@RestController` | 检查包路径与注解 |
 | 调试请求 404 | 应用配置了 `context-path`，但调试地址没带前缀 | 检查 `dwagger.setting.enableHost` / `enableHostText`，或直接使用相对地址 |
+| IDEA 对 `group-configs[].packages-to-scan` 报「需要索引访问权限」 | IDEA 把 `packages-to-scan` 解析为 `List<String>`，要求键路径带 `[0]` 索引才算解析成功（`SpringBootApplicationYaml` 检查，2026.x 的误报） | 纯 IDE 误报，不影响运行和绑定，可忽略；不要为它改配置，也不要换成 `GroupedOpenApi` Bean（3.x 不会出现在 `swagger-config` 里，分组下拉会空） |
 
 自定义转换器的正确写法（Boot 4 + springdoc 3.x）：
 
@@ -337,12 +337,7 @@ cd ..
 mvn -f dwagger-backend/pom.xml clean install
 ```
 
-运行集成示例验证：
-
-```bash
-mvn -f dwagger-integration-test/pom.xml spring-boot:run
-# 打开 http://localhost:8080/doc.html
-```
+验证接入：启动你自己的应用，打开 `http://localhost:8080/doc.html`（端口以实际配置为准）。
 
 注意：
 
