@@ -5414,15 +5414,124 @@ SwaggerBootstrapUi.prototype.assembleParameter = function (m, swpinfo) {
   }
 }
 /**
+ * 取出参数对象 schema 的属性列表，支持 $ref 和行内 properties 两种写法
+ * @param {*} schema 参数 schema
+ * @param {*} swpinfo 当前接口信息
+ */
+SwaggerBootstrapUi.prototype.getObjectSchemaProperties = function (schema, swpinfo) {
+  var properties = [];
+  if (!KUtils.checkUndefined(schema)) {
+    return properties;
+  }
+  // 行内对象类型
+  if (KUtils.checkUndefined(schema['properties'])) {
+    var inlineRequired = KUtils.propValue('required', schema, []);
+    for (var propertyName in schema['properties']) {
+      properties.push({
+        name: propertyName,
+        schema: schema['properties'][propertyName],
+        required: inlineRequired.indexOf(propertyName) > -1,
+        readOnly: KUtils.propValue('readOnly', schema['properties'][propertyName], false)
+      });
+    }
+    return properties;
+  }
+  // 引用类型，直接复用已解析好的模型属性
+  var ref = KUtils.propValue('$ref', schema, '');
+  if (KUtils.strNotBlank(ref)) {
+    var className = KUtils.getClassName(ref, swpinfo.oas2);
+    if (KUtils.strNotBlank(className)) {
+      var def = this.getDefinitionByName(className, swpinfo.oas2);
+      if (KUtils.checkUndefined(def) && KUtils.arrNotEmpty(def.properties)) {
+        def.properties.forEach(function (property) {
+          properties.push({
+            name: property.name,
+            schema: KUtils.checkUndefined(property.originProperty) ? property.originProperty : { type: property.type },
+            required: property.required === true,
+            readOnly: property.readOnly === true
+          });
+        });
+      }
+    }
+  }
+  return properties;
+}
+/**
+ * query 中的对象参数按 OpenAPI 默认的 form/explode 规则拆成独立查询字段。
+ * springdoc 对未加注解的 GET POJO 参数会生成 reqVO=$ref 的形式，直接发送 JSON
+ * 字符串 Spring MVC 无法绑定，拆成 pageNo/pageSize 等字段后才能正常调试。
+ * @returns {boolean} 是否已按对象参数处理
+ */
+SwaggerBootstrapUi.prototype.assembleObjectQueryParameterOAS3 = function (m, swpinfo) {
+  var that = this;
+  var schema = KUtils.propValue('schema', m, null);
+  if (!KUtils.checkUndefined(schema) || typeof schema !== 'object') {
+    return false;
+  }
+  // 只有默认的 form/explode 或 deepObject 能拆成字段
+  var style = KUtils.propValue('style', m, '');
+  if (KUtils.strNotBlank(style) && style != 'form' && style != 'deepObject') {
+    return false;
+  }
+  if (KUtils.propValue('explode', m, true) === false) {
+    return false;
+  }
+  var properties = that.getObjectSchemaProperties(schema, swpinfo);
+  if (!KUtils.arrNotEmpty(properties)) {
+    return false;
+  }
+  var parameterName = KUtils.propValue('name', m, '');
+  var ignoreParameterKeys = Object.keys(swpinfo.ignoreParameters || {});
+  // 整个对象参数被忽略时不展示任何字段
+  if (ignoreParameterKeys.indexOf(parameterName) > -1) {
+    return true;
+  }
+  properties.forEach(function (property) {
+    if (property.readOnly) {
+      return;
+    }
+    // deepObject 使用 reqVO[field] 形式，其余按字段名平铺
+    var fieldName = style == 'deepObject' ? parameterName + '[' + property.name + ']' : property.name;
+    if (ignoreParameterKeys.indexOf(parameterName + '.' + property.name) > -1) {
+      return;
+    }
+    var propertySchema = KUtils.checkUndefined(property.schema) ? property.schema : { type: 'string' };
+    var childParameter = {
+      name: fieldName,
+      in: 'query',
+      required: property.required,
+      schema: propertySchema
+    };
+    if (KUtils.strNotBlank(KUtils.propValue('description', propertySchema, ''))) {
+      childParameter.description = propertySchema['description'];
+    }
+    if (propertySchema.hasOwnProperty('example')) {
+      childParameter.example = propertySchema['example'];
+    }
+    var size = swpinfo.parameters.length;
+    that.assembleParameterOAS3(childParameter, swpinfo, [], true);
+    if (swpinfo.parameters.length > size && propertySchema['type'] == 'array') {
+      // 数组字段在表单里用逗号分隔输入，不使用 JSON 形式的默认值
+      swpinfo.parameters[swpinfo.parameters.length - 1].txtValue = '';
+    }
+  });
+  return true;
+}
+/**
  * 处理Open API v3的请求参数，获取SwaggerBootstrapUiParameter的对象
  * @param {*} m
  * @param {*} swpinfo
  * @param {*} requireArray 必须数组
+ * @param {*} noFlatten 禁止展开对象参数，避免拆开后的字段被再次展开
  */
-SwaggerBootstrapUi.prototype.assembleParameterOAS3 = function (m, swpinfo, requireArray) {
+SwaggerBootstrapUi.prototype.assembleParameterOAS3 = function (m, swpinfo, requireArray, noFlatten) {
   var that = this;
   var originalName = KUtils.propValue('name', m, '');
   var inType = KUtils.propValue('in', m, '');
+  if (!noFlatten && inType == 'query' &&
+      this.assembleObjectQueryParameterOAS3(m, swpinfo)) {
+    return;
+  }
   var minfo = new SwaggerBootstrapUiParameter();
   // 解析是否过时参数
   minfo.deprecated = KUtils.propValue('deprecated', m, false);
