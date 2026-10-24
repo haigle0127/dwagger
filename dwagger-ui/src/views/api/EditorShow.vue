@@ -41,8 +41,9 @@ export default {
       editor: null,
       editorHeight: 200,
       editorOptions: {
-        // 示例区只用于阅读，去掉行号和高亮，给 JSON 留出更多展示空间
-        showGutter: false,
+        // 示例区保留行号，固定 gutter 宽度避免初始化时与文本重叠
+        showGutter: true,
+        fixedWidthGutter: true,
         showPrintMargin: false,
         highlightActiveLine: false,
         displayIndentGuides: false
@@ -75,8 +76,21 @@ export default {
         this.lang = "xml";
       }
       // require("brace/theme/eclipse");
-      // 内边距交给外层 .dwagger-code-block，避免 Ace 内部再缩进
-      this.editor.renderer.setPadding(0);
+      // 保留 4px 左内边距，让行号与文本之间留一点呼吸空间，不再贴死/重叠
+      this.editor.renderer.setPadding(4);
+      // 若初始化时编辑器藏在隐藏容器里，第一次有尺寸后重算布局，避免 gutter 宽度为 0 导致重叠
+      var ro = new ResizeObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var cr = entry.contentRect;
+          if (cr.width > 0 && cr.height > 0) {
+            editor.resize(true);
+            ro.disconnect();
+          }
+        });
+      });
+      ro.observe(editor.container);
+      setTimeout(function () { editor.resize(true); }, 300);
+      setTimeout(function () { editor.resize(true); }, 800);
       // 重设高度
       this.resetEditorHeight();
       this.editor.renderer.on("afterRender", function () {

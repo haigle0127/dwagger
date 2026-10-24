@@ -73,7 +73,9 @@ export default {
       },
       commonOptions: {
         readOnly: false,
-        showPrintMargin: false
+        showPrintMargin: false,
+        // 固定行号槽宽度，避免初始化时因隐藏/尺寸未就绪导致数字与文本重叠
+        fixedWidthGutter: true
       }
     };
   },
@@ -130,9 +132,9 @@ export default {
       } else if (this.mode == "javascript") {
       } */
       // this.editor.gotoLine(1);
-      // 内边距由外层容器统一控制，Ace 内部不再留白
-      this.editor.renderer.setPadding(0);
       if (this.debugResponse) {
+        // 响应区无行号，内边距由外层容器统一控制，Ace 内部不再留白
+        this.editor.renderer.setPadding(0);
         // 启动换行
         this.editor.getSession().setUseWrapMode(true);
         this.editor.setOptions(this.debugOptions);
@@ -141,6 +143,23 @@ export default {
         }
       } else {
         this.editor.setOptions(this.commonOptions);
+        // 保留 4px 左内边距，让行号与输入文本之间留一点呼吸空间，不再贴死/重叠
+        this.editor.renderer.setPadding(4);
+        // 编辑器可能在隐藏容器里初始化，导致 gutter/字符宽度测成 0；
+        // 等它真正有尺寸后再 resize，确保行号槽宽度和文本位置正确
+        var ro = new ResizeObserver(function (entries) {
+          entries.forEach(function (entry) {
+            var cr = entry.contentRect;
+            if (cr.width > 0 && cr.height > 0) {
+              editor.resize(true);
+              ro.disconnect();
+            }
+          });
+        });
+        ro.observe(editor.container);
+        // 兜底：等字体/过渡完成后再次校正
+        setTimeout(function () { editor.resize(true); }, 300);
+        setTimeout(function () { editor.resize(true); }, 800);
       }
       // 重设高度
       this.resetEditorHeight();
