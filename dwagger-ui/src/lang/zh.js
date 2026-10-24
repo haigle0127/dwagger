@@ -146,7 +146,7 @@ const langOptions = {
       {
         title: '操作',
         dataIndex: 'operation',
-        width: '10%',
+        width: 92,
         scopedSlots: {
           customRender: 'operation'
         }
@@ -180,7 +180,7 @@ const langOptions = {
       {
         title: '操作',
         dataIndex: 'operation',
-        width: '10%',
+        width: 92,
         scopedSlots: {
           customRender: 'operation'
         }
@@ -206,7 +206,7 @@ const langOptions = {
       {
         title: '操作',
         dataIndex: 'operation',
-        width: '10%',
+        width: 92,
         scopedSlots: {
           customRender: 'operation'
         }
@@ -507,6 +507,7 @@ const langOptions = {
     headers:'请求头',
     params: '请求参数',
     noParams: '无参数',
+    arrayHint: '数组参数，多个值用英文逗号分隔',
     form:{
       upload:'选择文件',
       itemText:'文本',

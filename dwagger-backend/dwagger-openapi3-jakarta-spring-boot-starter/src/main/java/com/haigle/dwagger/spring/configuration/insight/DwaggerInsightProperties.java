@@ -4,7 +4,6 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 参考接口文档：<a href="http://dwagger.net/api.html">http://dwagger.net/api.html</a>
  * @author haigle
  * @since dwagger 4.4.0
  */

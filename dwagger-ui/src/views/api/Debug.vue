@@ -172,7 +172,7 @@
                               :data-key="record.id" :options="record.enums" style="width: 100%"
                               @change="(val) => urlFormContentEnumChange(val, record)">
                     </a-select>
-                    <a-input v-else :placeholder="record.description"
+                    <a-input v-else :placeholder="urlFormPlaceholder(record)"
                              :class="'dwagger-debug-param-require' + record.require" :data-key="record.id"
                              :defaultValue="record.content" @change="(val) => urlFormContentChange(val, record)" />
                   </template>
@@ -202,7 +202,7 @@
                                 :data-key="record.id" :options="record.enums" style="width: 100%"
                                 @change="(val) => rawFormContentEnumChange(val, record)">
                       </a-select>
-                      <a-input v-else :placeholder="record.description"
+                      <a-input v-else :placeholder="urlFormPlaceholder(record)"
                                :class="'dwagger-debug-param-require' + record.require" :data-key="record.id"
                                :defaultValue="record.content" @change="(val) => rawFormContentChange(val, record)" />
                     </template>
@@ -1475,6 +1475,8 @@ export default {
               id: KUtils.randomMd5(),
               name: param.name,
               type: "text",
+              // 数组参数按多值处理
+              isArray: param.type == "array",
               // 是否必须
               require: param.require,
               // 文件表单域的target
@@ -1538,6 +1540,8 @@ export default {
               id: KUtils.randomMd5(),
               name: param.name,
               type: "text",
+              // 数组参数按多值处理
+              isArray: param.type == "array",
               // 是否必须
               require: param.require,
               // 文件表单域的target
@@ -2086,7 +2090,7 @@ export default {
           if (tmphArrs.length > 0) {
             // 必须选中
             if (KUtils.strNotBlank(form.name)) {
-              params[form.name] = form.content;
+              params[form.name] = this.debugParamValue(form);
             }
           }
         }
@@ -2106,12 +2110,56 @@ export default {
           if (tmphArrs.length > 0) {
             // 必须选中
             if (KUtils.strNotBlank(form.name)) {
-              params[form.name] = form.content;
+              params[form.name] = this.debugParamValue(form);
             }
           }
         }
       });
       return params;
+    },
+    urlFormPlaceholder(record) {
+      if (!record.isArray) {
+        return record.description;
+      }
+      var hint = this.$t("debug.arrayHint");
+      return KUtils.strNotBlank(record.description)
+        ? record.description + " (" + hint + ")"
+        : hint;
+    },
+    debugParamValue(form) {
+      // 数组参数支持逗号分隔或 JSON 数组写法，统一转成数组，发送时展开为重复参数
+      if (!form.isArray || Array.isArray(form.content)) {
+        return form.content;
+      }
+      if (!KUtils.strNotBlank(form.content)) {
+        return form.content;
+      }
+      var text = String(form.content).trim();
+      if (text.startsWith("[")) {
+        try {
+          var arr = KUtils.json5parse(text);
+          if (Array.isArray(arr)) {
+            return arr.map(item => String(item)).filter(item => item !== "");
+          }
+        } catch (e) {
+          // 不是合法的 JSON 数组时按逗号分隔处理
+        }
+      }
+      return text.split(",").map(item => item.trim()).filter(item => item !== "");
+    },
+    serializeDebugQuery(params) {
+      // 数组参数展开为重复参数，例如 createTime=a&createTime=b
+      var query = [];
+      Object.keys(params || {}).forEach(key => {
+        var value = params[key];
+        var values = Array.isArray(value) ? value : [value];
+        values.forEach(item => {
+          if (KUtils.strNotBlank(item)) {
+            query.push(encodeURIComponent(key) + "=" + encodeURIComponent(item));
+          }
+        });
+      });
+      return query.join("&");
     },
     debugFormDataParams(fileFlag) {
       // form-data类型的请求参数
@@ -2526,16 +2574,10 @@ export default {
         debugInstance.interceptors.request.use(config => {
           let url = config.url;
           if (config.method === "get" && config.params) {
-            url += "?";
-            let keys = Object.keys(config.params);
-            for (let key of keys) {
-              if (KUtils.strNotBlank(config.params[key])) {
-                url += `${encodeURIComponent(key)}=${encodeURIComponent(
-                  config.params[key]
-                )}&`;
-              }
+            let query = this.serializeDebugQuery(config.params);
+            if (KUtils.strNotBlank(query)) {
+              url += (url.indexOf("?") > -1 ? "&" : "?") + query;
             }
-            url = url.substring(0, url.length - 1);
             config.params = {};
           }
           //  get参数编码
@@ -2700,6 +2742,7 @@ export default {
           method: methodType,
           headers: headers,
           params: formParams,
+          paramsSerializer: { serialize: this.serializeDebugQuery },
           data: data,
           // Cookie标志
           withCredentials: this.debugSendHasCookie(headers),
@@ -2907,14 +2950,11 @@ export default {
       if (proRegex.test(href)) {
         protocol = "https";
       }
-      var httpReg = new RegExp("^(http|https):.*", "ig");
-      var fullurl = "";
-      if (httpReg.test(resp.responseURL)) {
-        // 如果包含,则不追加
-        fullurl = resp.responseURL;
-      } else {
-        fullurl = protocol + "://" + resp.responseURL;
-      }
+      // responseURL 已包含完整路径和参数，这里只取源站地址，避免路径重复拼接
+      var originMatch = /^(https?:\/\/[^/]+)/i.exec(resp.responseURL || "");
+      var fullurl = originMatch
+        ? originMatch[1]
+        : protocol + "://" + window.location.host;
       // 判断是否开启了Host的配置,如果开启则直接使用Host中的地址
       if (this.enableHost) {
         fullurl = this.enableHostText;
@@ -2924,6 +2964,13 @@ export default {
         fullurl += "/";
       }
       fullurl += url;
+      // 数组参数展开为重复参数
+      var appendQuery = function (target, key, value) {
+        var values = Array.isArray(value) ? value : [value];
+        values.forEach(function (item) {
+          target.push(key + "=" + KUtils.toString(item, ""));
+        });
+      };
       curlified.push("curl");
       curlified.push("-X", this.debugMethodType.toUpperCase());
       // 设置请求头
@@ -2951,14 +2998,14 @@ export default {
             if (that.debugPathFlag) {
               // 确实是，判断该参数是否出现
               if (that.debugPathParams.indexOf(p) == -1) {
-                tmpUrls.push(p + "=" + KUtils.toString(formParams[p], ""));
+                appendQuery(tmpUrls, p, formParams[p]);
               } else {
                 var replaceRege = "{" + p + "}";
                 var value = KUtils.toString(formParams[p], "");
                 fullurl = fullurl.replace(replaceRege, value);
               }
             } else {
-              tmpUrls.push(p + "=" + KUtils.toString(formParams[p], ""));
+              appendQuery(tmpUrls, p, formParams[p]);
             }
           }
         }
@@ -2997,14 +3044,14 @@ export default {
             if (that.debugPathFlag) {
               // 确实是，判断该参数是否出现
               if (that.debugPathParams.indexOf(p) == -1) {
-                tmpUrls.push(p + "=" + KUtils.toString(urlFormParams[p], ''));
+                appendQuery(tmpUrls, p, urlFormParams[p]);
               } else {
                 var replaceRege = "{" + p + "}";
                 var value = KUtils.toString(urlFormParams[p], '');
                 fullurl = fullurl.replace(replaceRege, value);
               }
             } else {
-              tmpUrls.push(p + "=" + KUtils.toString(urlFormParams[p], ''));
+              appendQuery(tmpUrls, p, urlFormParams[p]);
             }
           }
           var tmpUrlStr = tmpUrls.join("&");

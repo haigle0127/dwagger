@@ -2,10 +2,10 @@
   <div :class="debugResponse ? 'dwagger-debug-ace-root' : 'dwagger-code-block'">
     <div v-if="debugResponse" class="dwagger-debug-ace-wrap">
       <editor class="dwagger-debug-ace-editor" @input="change" :options="debugOptions" v-model:value="valueText" @init="editorInit"
-        :lang="mode" theme="eclipse" width="100%" style="height: 100%"></editor>
+        :lang="editorLang" theme="eclipse" width="100%" style="height: 100%"></editor>
     </div>
     <div v-else>
-      <editor v-model:value="valueText" @init="editorInit" @input="change" :lang="mode" theme="eclipse" width="100%"
+      <editor v-model:value="valueText" @init="editorInit" @input="change" :lang="editorLang" theme="eclipse" width="100%"
         :style="{height: editorHeight + 'px'}"></editor>
     </div>
 
@@ -15,6 +15,7 @@
 <script>
 import { VAceEditor } from 'vue3-ace-editor'
 import ace from "ace-builds";
+import { toAceLang } from "@/core/aceJsonMode";
 import "ace-builds/src-noconflict/mode-json.js";
 import "ace-builds/src-noconflict/mode-xml.js";
 import "ace-builds/src-noconflict/mode-text.js";
@@ -42,6 +43,11 @@ export default {
     }
   },
   emits: ['update:value', 'debugEditorChange', 'showDescription'],
+  computed: {
+    editorLang() {
+      return toAceLang(this.mode)
+    }
+  },
   setup(props) {
     const valueText = ref(props.value)
     watch(() => props.value, () => {
