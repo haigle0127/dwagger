@@ -1,20 +1,23 @@
 # DWAGGER
 
-dwagger 是为 Spring Boot 集成 OpenAPI 3 文档的增强解决方案。它提供开箱即用的文档界面和一组扩展注解，帮助你在 Spring Boot 项目中快速生成、调试和交付接口文档。
+dwagger 是 Spring Boot 的 OpenAPI 3 文档增强方案：springdoc 负责生成规范，dwagger 负责界面与扩展注解。启动后访问 `/doc.html` 即可调试接口。
 
-## 特性
+核心能力：分组、搜索、标签页、排序、在线调试、请求参数缓存、AfterScript、Swagger Models、文档管理、Authorize / Basic / OAuth2、生产环境屏蔽、中英文切换。
 
-- 开箱即用的文档 UI，启动后访问 `/doc.html`
-- 接口分组、搜索、标签页与排序
-- 在线调试、请求参数缓存、AfterScript
-- Swagger Models 数据模型浏览
-- 文档管理：全局参数、离线文档、个性化设置
-- Authorize 鉴权：支持接口级与全局 `security`，填写后自动带入调试请求头
-- Basic 认证、OAuth2 授权
-- 生产环境屏蔽文档
-- 中文 / English 界面切换
+> 本文档同时面向人类与 AI 代理。文中的路径、坐标、端口和验证命令均在本仓库实测。
 
-## 环境要求
+## 1. 仓库结构
+
+| 路径 | 说明 |
+| --- | --- |
+| `dwagger-ui/` | Vue 3 前端源码，构建产物在 `dist/` |
+| `dwagger-backend/dwagger-core/` | 核心工具、扩展注解、过滤器 |
+| `dwagger-backend/dwagger-openapi3-ui/` | 只含前端静态资源的 jar（webjar），`/doc.html` 由它提供 |
+| `dwagger-backend/dwagger-openapi3-spring-boot-starter/` | Spring Boot 2.x（javax）Starter |
+| `dwagger-backend/dwagger-openapi3-jakarta-spring-boot-starter/` | Spring Boot 3.x / 4.x（jakarta）Starter |
+| `dwagger-integration-test/` | 可直接运行的集成示例（Boot 4.1.1，端口 8080） |
+
+## 2. 兼容矩阵
 
 | Spring Boot | Starter | springdoc | Servlet | Java |
 | --- | --- | --- | --- | --- |
@@ -22,15 +25,24 @@ dwagger 是为 Spring Boot 集成 OpenAPI 3 文档的增强解决方案。它提
 | 3.5.x | `dwagger-openapi3-jakarta-spring-boot-starter` + springdoc 2.9.1 | 2.9.1（手动指定） | jakarta | 17+ |
 | 4.1.x | `dwagger-openapi3-jakarta-spring-boot-starter` | 3.1.1（内置） | jakarta | 17+ |
 
-两个 Starter 只能二选一，不能同时引入。Spring Boot 3.x 和 4.x 共用 jakarta Starter，区别在于 springdoc 版本：4.x 直接使用内置的 springdoc 3.x，3.x 需要排除内置版本并手动引入 springdoc 2.9.x。Boot 3 已用 3.5.16 实测通过。
+- 两个 Starter 只能二选一。
+- Spring Boot 3.x 与 4.x 共用 jakarta Starter，区别只在 springdoc 版本：4.x 用内置 3.x；3.x 必须排除内置的 3.x 并手动引入 2.9.x。
+- 已实测：Boot 4.1.1 + JDK 17 + springdoc 3.1.1；Boot 3.5.16 + springdoc 2.9.1。
+- Boot 3.5.x / 4.1.x 默认的 Logback 1.5.x 存在 CVE-2026-19880、CVE-2026-104721，建议把 `logback.version` 设为 `1.6.5`、`slf4j.version` 设为 `2.0.20`。Boot 2.7 不能升到 Logback 1.6 / SLF4J 2。
 
-> Boot 3.5.x / 4.1.x 默认的 Logback 1.5.x 存在 CVE-2026-19880、CVE-2026-104721，建议把 `logback.version` 设为 `1.6.5`、`slf4j.version` 设为 `2.0.20`。
+## 3. 硬性约束（接入前必读）
 
-## 快速开始
+以下任意一条不满足，`/doc.html` 都会空白或提示 `Dwagger文档请求异常`。
 
-### 1. 添加依赖
+1. **`dwagger.enable=true`**：这是总开关，默认关闭。
+2. **`springdoc.swagger-ui.enabled` 必须保持 `true`（默认值）**。dwagger UI 通过 `GET /v3/api-docs/swagger-config` 读取分组列表，该端点由 springdoc 的 `SwaggerConfig` 提供，一旦关闭 swagger-ui 就会 404。不要为了隐藏自带页面而关闭它；如果想隐藏 `/swagger-ui/index.html`，请用安全框架拦截。
+3. **不要用 `configureMessageConverters(List)` 覆盖默认转换器后把 Jackson 放在最前面**。springdoc 3.x 的 `/v3/api-docs` 返回 `byte[]`，Jackson 会把它序列化成 base64 字符串（页面表现为拿到一串 `"eyJvcGVuYXBp..."`）。自定义转换器时必须保证 `ByteArrayHttpMessageConverter` 排在 `MappingJackson2HttpMessageConverter` 之前。
+4. **项目设置了 `server.servlet.context-path` 时**，直接用 `http://host:port/{context-path}/doc.html` 访问，UI 会自动按当前路径拼接 docs 地址。
+5. `/doc.html` 是固定路径，不提供配置项。
 
-Spring Boot 4.1.x：
+## 4. 快速开始
+
+### 4.1 Spring Boot 4.1.x
 
 ```xml
 <dependency>
@@ -40,7 +52,7 @@ Spring Boot 4.1.x：
 </dependency>
 ```
 
-Spring Boot 3.5.x（排除内置的 springdoc 3.x，改用 springdoc 2.9.1）：
+### 4.2 Spring Boot 3.5.x（排除内置 springdoc 3.x，改用 2.9.1）
 
 ```xml
 <dependency>
@@ -61,7 +73,7 @@ Spring Boot 3.5.x（排除内置的 springdoc 3.x，改用 springdoc 2.9.1）：
 </dependency>
 ```
 
-Spring Boot 2.x：
+### 4.3 Spring Boot 2.x
 
 ```xml
 <dependency>
@@ -71,7 +83,7 @@ Spring Boot 2.x：
 </dependency>
 ```
 
-Gradle：
+### 4.4 Gradle
 
 ```groovy
 // Spring Boot 4.x
@@ -84,26 +96,26 @@ implementation('cn.haigle.dwagger:dwagger-openapi3-jakarta-spring-boot-starter:0
 implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.9.1'
 ```
 
-### 2. 开启 dwagger
-
-在 `application.yml` 中开启：
+### 4.5 最小配置
 
 ```yaml
 dwagger:
   enable: true
   cors: true
-```
 
-需要分组时，配合 springdoc 的 `group-configs`：
-
-```yaml
 springdoc:
+  # 保持 true，dwagger 依赖 /v3/api-docs/swagger-config 获取分组
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
   group-configs:
     - group: default
       packages-to-scan: com.example.demo
 ```
 
-`dwagger.enable=true` 是总开关。`@EnableDwagger` 不是必需的，加上也不影响：
+`@EnableDwagger` 不是必需的，加上也不影响：
 
 ```java
 @EnableDwagger
@@ -116,19 +128,61 @@ public class Application {
 }
 ```
 
-### 3. 打开文档
+## 5. 30 秒验证清单
 
-启动应用后访问：
+启动应用后依次执行（把 `8080` 换成实际端口）：
 
-```text
-http://localhost:8080/doc.html
+```bash
+# 1. UI 页面：应返回 200 且包含 webjars/js/doc-*.js
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/doc.html
+
+# 2. 分组配置：应返回含 "urls" 数组的 JSON
+curl -s http://localhost:8080/v3/api-docs/swagger-config
+
+# 3. 接口文档：应以 {"openapi":"3.x.x" 开头，而不是引号包起来的 base64
+curl -s http://localhost:8080/v3/api-docs | head -c 60
+
+# 4. UI 静态资源：应返回 200（从 doc.html 里取出实际带 hash 的文件名）
+JS=$(curl -s http://localhost:8080/doc.html | grep -o 'webjars/js/doc-[^"]*\.js' | head -1)
+curl -s -o /dev/null -w "%{http_code}\n" "http://localhost:8080/$JS"
 ```
 
-接口描述由 springdoc-openapi 提供：未配置分组时地址为 `/v3/api-docs`，配置分组后为 `/v3/api-docs/{group}`。
+判定标准：
 
-## 使用注解
+- 第 2 步返回 404 → 见第 6 节「页面空白」行。
+- 第 3 步返回 `"eyJvcGVuYXBp...`（带引号的 base64）→ 见第 6 节「返回带引号的 base64」行。
+- 第 1 步 200 但页面空白 → 打开浏览器控制台，若出现 `Dwagger文档请求异常`，见第 6 节「页面空白」行。
 
-dwagger 的扩展注解用于排序和展示作者信息，接口描述仍然使用 OpenAPI 3 标准注解。
+## 6. 常见故障排查
+
+| 现象 | 根因 | 修复 |
+| --- | --- | --- |
+| 页面空白，控制台提示 `Dwagger文档请求异常` | `springdoc.swagger-ui.enabled=false`，`/v3/api-docs/swagger-config` 404 | 删除该配置或改为 `true` |
+| `/v3/api-docs` 返回带引号的 base64 字符串 | 自定义 `configureMessageConverters(List)` 把 Jackson 排在 `ByteArrayHttpMessageConverter` 之前 | 在 Jackson 之前加入 `new ByteArrayHttpMessageConverter()`，或改用 `Jackson2ObjectMapperBuilderCustomizer` 定制 ObjectMapper |
+| `/doc.html` 404 | 未引入 UI 资源 jar，或静态资源被安全框架/自定义 `ResourceHandler` 拦截 | 确认引入的是 starter 而不是只有 core；放行 `/doc.html`、`/webjars/**`、`/v3/api-docs/**` |
+| `/v3/api-docs` 401/403 | Spring Security 拦截 | 对文档端点 `permitAll()` |
+| 分组下拉为空或缺少某个分组 | `group-configs[].packages-to-scan` 没匹配到 Controller 包 | 改成实际包名；不分组时删除 `group-configs`，使用 `/v3/api-docs` |
+| 页面能打开但接口列表为空 | Controller 不在扫描包内，或类上缺少 `@RestController` | 检查包路径与注解 |
+| 调试请求 404 | 应用配置了 `context-path`，但调试地址没带前缀 | 检查 `dwagger.setting.enableHost` / `enableHostText`，或直接使用相对地址 |
+
+自定义转换器的正确写法（Boot 4 + springdoc 3.x）：
+
+```java
+@Override
+public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+    MappingJackson2HttpMessageConverter jackson = new MappingJackson2HttpMessageConverter();
+    // ... 自定义 ObjectMapper ...
+
+    // byte[] 必须用 ByteArrayHttpMessageConverter 原样输出，且排在 Jackson 之前
+    converters.add(new ByteArrayHttpMessageConverter());
+    converters.add(jackson);
+    converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+}
+```
+
+## 7. 使用注解
+
+dwagger 的扩展注解只负责排序和展示作者信息，接口描述仍使用 OpenAPI 3 标准注解。
 
 ```java
 @ApiSupport(order = 1, author = "haigle")
@@ -167,7 +221,7 @@ public class User {
 - `order` 越小越靠前
 - `@Tag`、`@Operation`、`@Parameter`、`@Schema` 由 springdoc-openapi 解析
 
-## 常用配置
+## 8. 配置项
 
 | 配置 | 默认值 | 说明 |
 | --- | --- | --- |
@@ -177,6 +231,8 @@ public class User {
 | `dwagger.basic.enable` | `false` | 是否开启 Basic 认证 |
 | `dwagger.basic.username` | - | Basic 用户名 |
 | `dwagger.basic.password` | - | Basic 密码 |
+| `dwagger.basic.include` | - | 需要 Basic 校验的 URL（正则） |
+| `dwagger.setting.customCode` | `200` | `production=true` 时返回的 HTTP 状态码 |
 | `dwagger.setting.language` | `ZH_CN` | 界面语言，可选 `ZH_CN`、`EN` |
 | `dwagger.setting.enableSwaggerModels` | `true` | 显示 Swagger Models |
 | `dwagger.setting.enableDocumentManage` | `true` | 显示文档管理 |
@@ -210,7 +266,7 @@ dwagger:
     customCode: 404
 ```
 
-## 多分组
+## 9. 多分组
 
 ```yaml
 springdoc:
@@ -223,7 +279,7 @@ springdoc:
 
 UI 顶部会显示分组下拉框。只有一个分组时，可以设置 `dwagger.setting.enableGroup: false` 隐藏。
 
-## 接口鉴权（Authorize）
+## 10. 接口鉴权（Authorize）
 
 在 `securitySchemes` 中声明认证方式后，左侧会显示 Authorize 页面。填写 token 并保存，调试接口时会自动作为请求头带入。
 
@@ -244,7 +300,7 @@ public OpenAPI openAPI() {
 
 `apiKey` 类型可用 `in(SecurityScheme.In.HEADER).name("Authorization")` 自定义请求头名称。
 
-## 离线文档与自定义首页
+## 11. 离线文档与自定义首页
 
 `dwagger.documents` 可以给分组挂载 Markdown 文档：
 
@@ -259,22 +315,52 @@ dwagger:
 
 设置 `dwagger.setting.enableHomeCustom: true` 后，可以用 `homeCustomLocation` 指定首页 Markdown。
 
-## 从源码构建
+## 12. 从源码构建
+
+环境：JDK 17+、Maven 3.9+、Node.js 20+、pnpm。
 
 ```bash
+# 1. 构建后端（顺序：core -> ui -> starter）
 mvn -f dwagger-backend/pom.xml clean install
-```
 
-修改前端 UI 后，先重新构建 `dwagger-ui`，再把产物回填到后端 UI 模块：
-
-```bash
+# 2. 构建前端
 cd dwagger-ui
 pnpm install
 pnpm build
+
+# 3. 回填前端产物（dist 下全部文件，包括 .gz）
+rm -rf ../dwagger-backend/dwagger-openapi3-ui/src/main/resources/*
+cp -r dist/* ../dwagger-backend/dwagger-openapi3-ui/src/main/resources/
+
+# 4. 重新构建后端
+cd ..
+mvn -f dwagger-backend/pom.xml clean install
 ```
 
-将 `dwagger-ui/dist` 下的全部文件复制到 `dwagger-backend/dwagger-openapi3-ui/src/main/resources`，然后重新执行上面的 Maven 命令。
+运行集成示例验证：
 
+```bash
+mvn -f dwagger-integration-test/pom.xml spring-boot:run
+# 打开 http://localhost:8080/doc.html
+```
+
+注意：
+
+- 回填前先清空 `resources`，否则旧 hash 的 JS/CSS 会残留，jar 体积持续变大。
+- 前端产物文件名带 hash，回填后必须重新执行 Maven 构建，starter 才会带上新资源。
+- `pnpm build` 读取 `.env.production`，默认发布类型为 `SpringDocOpenApi`。
+
+## 13. AI 代理接入检查清单
+
+按顺序执行，任何一步失败就停在对应项修复：
+
+1. 确认 Spring Boot 大版本，按第 2 节选择 Starter，且只引入一个。
+2. 全局搜索 `springdoc.swagger-ui.enabled`，值必须为 `true` 或未配置。
+3. 全局搜索 `configureMessageConverters`，若存在，确认 `ByteArrayHttpMessageConverter` 位于 Jackson 之前。
+4. 确认 `dwagger.enable=true`。
+5. 确认安全框架放行 `/doc.html`、`/webjars/**`、`/v3/api-docs/**`。
+6. 启动应用，执行第 5 节的 4 条 `curl`，全部符合预期才算接入完成。
+7. 若使用分组，核对 `packages-to-scan` 与 Controller 实际包名一致。
 
 ## 致谢
 
