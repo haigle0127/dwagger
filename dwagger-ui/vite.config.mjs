@@ -4,8 +4,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite'
 import { ArcoResolver } from 'unplugin-vue-components/resolvers'
 import viteCompression from 'vite-plugin-compression';
-import removeConsole from 'vite-plugin-remove-console';
-import { resolve } from 'path'
+import { fileURLToPath } from 'node:url'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vitejs.dev/config/
@@ -30,11 +29,11 @@ export default defineConfig({
       algorithm: 'gzip', //压缩算法
       ext: '.gz', //文件类型
     }),
-    // removeConsole()
   ],
   resolve: {
     alias: [
-      { find: '@', replacement: resolve(__dirname, 'src') },
+      // .mjs 配置不再依赖 __dirname，兼容 Vite 原生配置加载器
+      { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
       { find: /^~/, replacement: '' },
     ]
   },
