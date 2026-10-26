@@ -11,63 +11,63 @@
             <a-col :span="5">
               <h3>简介</h3>
             </a-col>
-            <a-col :span="19"><span v-html="instance.description"/></a-col>
+            <a-col :span="19"><span v-html="safeHtml(instance.description)"/></a-col>
           </a-row>
           <a-divider class="divider" />
           <a-row class="content-line">
             <a-col :span="5">
               <h3>作者</h3>
             </a-col>
-            <a-col :span="19"><span v-html="instance.contact"/></a-col>
+            <a-col :span="19"><span v-html="safeHtml(instance.contact)"/></a-col>
           </a-row>
           <a-divider class="divider" />
           <a-row class="content-line">
             <a-col :span="5">
               <h3>版本</h3>
             </a-col>
-            <a-col :span="19"><span v-html="instance.version"/></a-col>
+            <a-col :span="19"><span v-html="safeHtml(instance.version)"/></a-col>
           </a-row>
           <a-divider class="divider" />
           <a-row class="content-line">
             <a-col :span="5">
               <h3>host</h3>
             </a-col>
-            <a-col :span="19"><span v-html="instance.host"/></a-col>
+            <a-col :span="19"><span v-html="safeHtml(instance.host)"/></a-col>
           </a-row>
           <a-divider class="divider" />
           <a-row class="content-line">
             <a-col :span="5">
               <h3>basePath</h3>
             </a-col>
-            <a-col :span="19"><span v-html="instance.basePath"/></a-col>
+            <a-col :span="19"><span v-html="safeHtml(instance.basePath)"/></a-col>
           </a-row>
           <a-divider class="divider" />
           <a-row class="content-line">
             <a-col :span="5">
               <h3>服务Url</h3>
             </a-col>
-            <a-col :span="19"><span v-html="instance.termsOfService"/></a-col>
+            <a-col :span="19"><span v-html="safeHtml(instance.termsOfService)"/></a-col>
           </a-row>
           <a-divider class="divider" />
           <a-row class="content-line">
             <a-col :span="5">
               <h3>分组名称</h3>
             </a-col>
-            <a-col :span="19"><span v-html="instance.name"/></a-col>
+            <a-col :span="19"><span v-html="safeHtml(instance.name)"/></a-col>
           </a-row>
           <a-divider class="divider" />
           <a-row class="content-line">
             <a-col :span="5">
               <h3>分组url</h3>
             </a-col>
-            <a-col :span="19"><span v-html="instance.url"/></a-col>
+            <a-col :span="19"><span v-html="safeHtml(instance.url)"/></a-col>
           </a-row>
           <a-divider class="divider" />
           <a-row class="content-line">
             <a-col :span="5">
               <h3>分组location</h3>
             </a-col>
-            <a-col :span="19"><span v-html="instance.location"/></a-col>
+            <a-col :span="19"><span v-html="safeHtml(instance.location)"/></a-col>
           </a-row>
           <a-divider class="divider" />
           <a-row class="content-line">
@@ -122,6 +122,7 @@
 <script>
 /* import OnlineDocument from "@/views/api/OnlineDocument"; */
 import { defineAsyncComponent } from 'vue'
+import { sanitizeHtml } from '@/utils/sanitizeHtml.js'
 
 export default {
   components: {
@@ -142,6 +143,10 @@ export default {
       hideShow: true
     };
   },
-  methods: {}
+  methods: {
+    safeHtml(value) {
+      return sanitizeHtml(value)
+    }
+  }
 };
 </script>

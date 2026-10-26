@@ -3,6 +3,7 @@ package com.haigle.dwagger.extend.filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -53,15 +54,16 @@ public class BasicFilter {
     
     protected boolean match(String uri) {
         boolean match = false;
+        if (uri == null) {
+            return false;
+        }
         // 考虑双斜杠的问题会绕过校验
         // https://gitee.com/xiaoym/dwagger/issues/I4XDYE
         String newUri = uri.replaceAll("/+", "/");
-        if (uri != null) {
-            for (Pattern pattern : getUrlFilters()) {
-                if (pattern.matcher(newUri).matches()) {
-                    match = true;
-                    break;
-                }
+        for (Pattern pattern : getUrlFilters()) {
+            if (pattern.matcher(newUri).matches()) {
+                match = true;
+                break;
             }
         }
         return match;
@@ -73,7 +75,7 @@ public class BasicFilter {
             try {
                 // byte[] bytes=decoder.decodeBuffer(source);
                 byte[] bytes = Base64.getDecoder().decode(source);
-                decodeStr = new String(bytes);
+                decodeStr = new String(bytes, StandardCharsets.UTF_8);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }

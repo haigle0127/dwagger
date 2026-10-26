@@ -40,7 +40,7 @@
         <span v-html="$t('doc.author')"></span>
       </a-typography-title>
       <a-card :bordered="false" class="api-body-desc">
-        <span v-html="api.author"></span>
+        <span v-html="safeHtml(api.author)"></span>
       </a-card>
     </div>
     <!--接口描述-->
@@ -49,7 +49,7 @@
         <span v-html="$t('doc.des')"></span>
       </a-typography-title>
       <a-card :bordered="false" class="api-body-desc">
-        <span v-html="api.description"></span>
+        <span v-html="safeHtml(api.description)"></span>
       </a-card>
     </div>
     <!--请求示例-->
@@ -66,7 +66,7 @@
     <a-table :defaultExpandAllRows="expanRows" :columns="columns" :data="reqParameters" rowKey="id" size="small"
       :pagination="page">
       <template #requestDescription="{ record }">
-        <span v-html="record.description"></span>
+        <span v-html="safeHtml(record.description)"></span>
         <span v-if="record.example">,示例值({{ record.example }})</span>
       </template>
       <template #requestIn="{ record }">
@@ -88,11 +88,11 @@
       <a-table :defaultExpandAllRows="expanRows" :columns="responseStatuscolumns" :data="api.responseCodes"
         rowKey="code" size="small" :pagination="page">
         <template #descriptionTemplate="{ record }">
-          <div v-html="record.description"></div>
+          <div v-html="safeHtml(record.description)"></div>
         </template>
         <template #schemaTemplate="{ record }">
-          <span v-if="record.schema != null" v-html="record.schema"></span>
-          <span v-else-if="record.schemaTitle != null" v-html="record.schemaTitle"></span>
+          <span v-if="record.schema != null" v-html="safeHtml(record.schema)"></span>
+          <span v-else-if="record.schemaTitle != null" v-html="safeHtml(record.schemaTitle)"></span>
         </template>
       </a-table>
     </div>
@@ -114,7 +114,7 @@
           <a-table :defaultExpandAllRows="expanRows" :columns="responseParametersColumns" :data="resp.data"
             rowKey="id" size="small" :pagination="page">
             <template #descriptionTemplate="{ record }">
-              <span v-html="record.description"></span>
+              <span v-html="safeHtml(record.description)"></span>
             </template>
           </a-table>
           <!-- 响应示例 -->
@@ -147,7 +147,7 @@
       <a-table :defaultExpandAllRows="expanRows" :columns="responseParametersColumns" :data="multipData.data"
         rowKey="id" size="small" :pagination="page">
         <template #descriptionTemplate="{ record }">
-          <span v-html="record.description"></span>
+          <span v-html="safeHtml(record.description)"></span>
         </template>
       </a-table>
       <a-typography-title :heading="6" class="api-title">
@@ -165,6 +165,7 @@
 </template>
  <script>
  import KUtils from "@/core/utils";
+import { sanitizeHtml } from '@/utils/sanitizeHtml.js'
  import { toArcoColumns } from "@/components/utils/DwaggerUtils";
  import Constants from "@/store/constants";
  import markdownSingleText from "@/components/officeDocument/markdownSingleTransform";
@@ -222,7 +223,8 @@
        swagger,
        responseCodeDisplayStatus,
        dwaggerModels,
-       messages
+       messages,
+       safeHtml: sanitizeHtml
      }
    },
    data() {
@@ -505,7 +507,7 @@
                                `${param.name}.${name}`
                              ) ||
                              ignoreParameterAllKeys.some(key =>
-                               new RegExp(`^(${key}$|${key}[.[])`).test(name) || eval('/' + key + '/g').test(name)
+                               new RegExp(`^(${key}$|${key}[.[])`).test(name) || new RegExp(key, 'g').test(name)
                              )
                            ) //  处理 json 提交
                          );
@@ -873,10 +875,12 @@
              if (!KUtils.arrNotEmpty(sfd) && responseCode != null) {
                var fieldSpan = document.createElement("span");
                fieldSpan.className = "dwagger-debug-editor-field-description";
-               fieldSpan.innerHTML = responseCode.responseDescriptionFind(
-                 paths,
-                 key,
-                 swaggerInstance
+               fieldSpan.innerHTML = sanitizeHtml(
+                 responseCode.responseDescriptionFind(
+                   paths,
+                   key,
+                   swaggerInstance
+                 )
                );
                fieldSpan.style.left = acePrintMarginLeft;
                item.appendChild(fieldSpan);

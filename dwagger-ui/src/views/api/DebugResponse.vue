@@ -73,6 +73,7 @@
 </template>
 <script>
 import KUtils from "@/core/utils";
+import { sanitizeHtml } from '@/utils/sanitizeHtml.js'
 import ClipboardJS from "clipboard";
 import { computed, defineAsyncComponent } from 'vue'
 import { useGlobalsStore } from '@/store/modules/global.js'
@@ -340,10 +341,12 @@ export default {
             if (!KUtils.arrNotEmpty(sfd)) {
               var fieldSpan = document.createElement("span");
               fieldSpan.className = "dwagger-debug-editor-field-description";
-              fieldSpan.innerHTML = responseCode.responseDescriptionFind(
-                paths,
-                key,
-                swaggerInstance
+              fieldSpan.innerHTML = sanitizeHtml(
+                responseCode.responseDescriptionFind(
+                  paths,
+                  key,
+                  swaggerInstance
+                )
               );
               fieldSpan.style.left = acePrintMarginLeft;
               item.appendChild(fieldSpan);

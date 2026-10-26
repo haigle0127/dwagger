@@ -43,7 +43,7 @@ public class JakartaProductionSecurityFilter extends BasicFilter implements Filt
             if (!match(uri)) {
                 chain.doFilter(request, response);
             } else {
-                response.setContentType("text/palin;charset=UTF-8");
+                response.setContentType("text/plain;charset=UTF-8");
                 PrintWriter pw = response.getWriter();
                 pw.write("You do not have permission to access this page");
                 pw.flush();

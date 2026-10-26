@@ -10,7 +10,7 @@
           {{ swaggerCurrentInstance.title }}
         </a-typography-title>
         <a-typography-paragraph class="hero-desc" v-if="swaggerCurrentInstance.description">
-          <span v-html="swaggerCurrentInstance.description"></span>
+          <span v-html="safeHtml(swaggerCurrentInstance.description)"></span>
         </a-typography-paragraph>
         <a-space wrap :size="10">
           <a-tag class="hero-tag" :bordered="false" v-if="swaggerCurrentInstance.version">
@@ -36,7 +36,7 @@
             </template>
             <a-descriptions :column="1" size="large">
               <a-descriptions-item v-for="row in serviceRows" :key="row.label" :label="row.label">
-                <span v-html="row.value || '-'"></span>
+                <span v-html="safeHtml(row.value || '-')"></span>
               </a-descriptions-item>
             </a-descriptions>
           </a-card>
@@ -51,7 +51,7 @@
             </template>
             <a-descriptions :column="1" size="large">
               <a-descriptions-item v-for="row in groupRows" :key="row.label" :label="row.label">
-                <span v-html="row.value || '-'"></span>
+                <span v-html="safeHtml(row.value || '-')"></span>
               </a-descriptions-item>
             </a-descriptions>
           </a-card>
@@ -82,6 +82,7 @@
 import { computed, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useGlobalsStore } from '@/store/modules/global.js'
+import { sanitizeHtml } from '@/utils/sanitizeHtml.js'
 import { IconApps, IconBarChart, IconInfoCircle } from '@arco-design/web-vue/es/icon'
 
 export default {
@@ -134,6 +135,7 @@ export default {
       settings,
       serviceRows,
       groupRows,
+      safeHtml: sanitizeHtml,
       // HTTP 方法对应 Arco 预设色，保持和标签体系一致
       methodColors: {
         GET: 'arcoblue',

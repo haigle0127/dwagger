@@ -5,6 +5,7 @@
 
 <script>
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import mermaid from 'mermaid';
 import random from 'lodash/random';
 
@@ -57,7 +58,9 @@ export default {
     },
     computed: {
         markdownSource() {
-            return marked.parse(this.source);
+            const rawHtml = marked.parse(this.source || '');
+            // 对 Markdown 渲染结果做 XSS 净化，防止恶意脚本注入
+            return DOMPurify.sanitize(rawHtml);
         }
     }
 

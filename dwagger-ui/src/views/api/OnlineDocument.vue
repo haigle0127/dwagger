@@ -33,7 +33,7 @@
         接口描述
       </a-typography-title>
       <a-card :bordered="false" class="api-body-desc">
-        <span v-html="api.description"></span>
+        <span v-html="safeHtml(api.description)"></span>
       </a-card>
     </div>
     <!--请求示例-->
@@ -41,7 +41,7 @@
       <a-typography-title :heading="6" class="api-title">
         请求示例
       </a-typography-title>
-      <pre class="api-editor-show" v-html="formaterJson(api.requestValue)"></pre>
+      <pre class="api-editor-show" v-html="safeHtml(formaterJson(api.requestValue))"></pre>
       <!-- <editor-show :value="api.requestValue"></editor-show> -->
     </div>
     <a-typography-title :heading="6" class="api-title">
@@ -68,7 +68,7 @@
     <a-table :defaultExpandAllRows="expanRows" :columns="responseStatuscolumns" :data="api.responseCodes"
       rowKey="code" size="small" :pagination="page">
       <template #descriptionTemplate="{ record }">
-        <div v-html="record.description"></div>
+        <div v-html="safeHtml(record.description)"></div>
       </template>
     </a-table>
     <!--响应参数需要判断是否存在多个code-schema的情况-->
@@ -98,7 +98,7 @@
           <div class="api-editor-show" v-if="resp.responseBasicType">
             {{ resp.responseText }}
           </div>
-          <pre class="api-editor-show" v-else v-html="formaterJson(resp.responseValue)"></pre>
+          <pre class="api-editor-show" v-else v-html="safeHtml(formaterJson(resp.responseValue))"></pre>
           <!-- <editor-show :value="resp.responseBasicType ? resp.responseText : resp.responseValue"></editor-show> -->
           <!-- <editor :value="resp.responseBasicType ? resp.responseText : resp.responseValue" @init="multiResponseSampleEditorInit" lang="json" theme="eclipse" width="100%" :height="editorMultiHeight"></editor> -->
         </a-tab-pane>
@@ -127,7 +127,7 @@
       <div class="api-editor-show" v-if="multipData.responseBasicType">
         {{ multipData.responseText }}
       </div>
-      <pre class="api-editor-show" v-else v-html="formaterJson(multipData.responseValue)"></pre>
+      <pre class="api-editor-show" v-else v-html="safeHtml(formaterJson(multipData.responseValue))"></pre>
       <!--  <editor-show :value="multipData.responseBasicType ? multipData.responseText : multipData.responseValue"></editor-show> -->
       <!-- <editor :value="multipData.responseBasicType ? multipData.responseText : multipData.responseValue" @init="singleResponseSampleEditorInit" lang="json" theme="eclipse" width="100%" :height="editorSingleHeight"></editor> -->
     </div>
@@ -135,6 +135,7 @@
 </template>
 <script>
 import KUtils from "@/core/utils";
+import { sanitizeHtml } from '@/utils/sanitizeHtml.js'
 import { toArcoColumns } from "@/components/utils/DwaggerUtils";
 import Constants from "@/store/constants";
 import { VAceEditor } from 'vue3-ace-editor'
@@ -280,6 +281,9 @@ export default {
     instance.initResponseCodeParams();
   },
   methods: {
+    safeHtml(value) {
+      return sanitizeHtml(value)
+    },
     genUnionTableKey() {
       return KUtils.randomMd5();
     },
@@ -532,9 +536,9 @@ export default {
           json = JSON.stringify(json, undefined, 2);
         }
         json = json
-          .replace(/&/g, "&")
-          .replace(/</g, "<")
-          .replace(/>/g, ">");
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
         return json.replace(
           /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
           function (match) {

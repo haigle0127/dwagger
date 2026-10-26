@@ -4,9 +4,10 @@ import com.haigle.dwagger.core.util.StrUtil;
 import com.haigle.dwagger.extend.filter.BasicFilter;
 import lombok.Data;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author haigle
@@ -77,8 +78,14 @@ public abstract class AbstractSecurityFilter extends BasicFilter {
                     } else {
                         String iptUser = upArr[0];
                         String iptPass = upArr[1];
-                        // 匹配服务端用户名及密码
-                        return Objects.equals(iptUser, getUserName()) && Objects.equals(iptPass, getPassword());
+                        // 使用常量时间比较，防止通过响应时间差异爆破用户名/密码
+                        boolean userMatch = MessageDigest.isEqual(
+                                (iptUser != null ? iptUser : "").getBytes(StandardCharsets.UTF_8),
+                                (getUserName() != null ? getUserName() : "").getBytes(StandardCharsets.UTF_8));
+                        boolean passMatch = MessageDigest.isEqual(
+                                (iptPass != null ? iptPass : "").getBytes(StandardCharsets.UTF_8),
+                                (getPassword() != null ? getPassword() : "").getBytes(StandardCharsets.UTF_8));
+                        return userMatch && passMatch;
                     }
                 }
             }

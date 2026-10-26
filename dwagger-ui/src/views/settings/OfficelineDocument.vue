@@ -51,6 +51,7 @@ import markdownTextUS from "@/components/officeDocument/markdownTransformUS";
 import OnlineDocument from "@/views/api/OnlineDocument.vue";
 import DownloadHtml from "./DownloadHtml.vue";
 import KUtils from "@/core/utils";
+import { sanitizeHtml } from '@/utils/sanitizeHtml.js'
 import Constants from "@/store/constants";
 import { useGlobalsStore } from '@/store/modules/global.js'
 import { computed } from 'vue'
@@ -651,6 +652,24 @@ export default {
       }
       return tmpChildParams;
     }
+    , sanitizeDocFields(value) {
+      // 离线文档里的描述/作者会以富文本渲染，导出前先净化，避免把脚本带进生成的文件
+      if (Array.isArray(value)) {
+        return value.map(item => this.sanitizeDocFields(item));
+      }
+      if (value && typeof value === 'object') {
+        const result = {};
+        Object.keys(value).forEach(key => {
+          if ((key === 'description' || key === 'author') && typeof value[key] === 'string') {
+            result[key] = sanitizeHtml(value[key]);
+          } else {
+            result[key] = this.sanitizeDocFields(value[key]);
+          }
+        });
+        return result;
+      }
+      return value;
+    }
     , getHtmlData() {
       // 获取导出网页的Html数据结构,用于在单页面渲染
       var that = this;
@@ -821,7 +840,19 @@ export default {
       };
       // console.log("html数据源")
       // console.log(htmlData)
-      return htmlData;
+      // 基础信息在离线文档中同样以富文本渲染，导出前统一净化
+      const instance = { ...htmlData.instance };
+      ['description', 'contact', 'version', 'host', 'basePath', 'termsOfService', 'name', 'url', 'location']
+        .forEach(field => {
+          if (typeof instance[field] === 'string') {
+            instance[field] = sanitizeHtml(instance[field]);
+          }
+        });
+      return {
+        ...htmlData,
+        instance,
+        tags: this.sanitizeDocFields(htmlData.tags)
+      };
     },
     getHtmlContent(title) {
       // 获取html另外一种方式：this.$el.outerHTML
@@ -831,15 +862,20 @@ export default {
       }
       // 抛弃template
       //  const template = document.getElementById(domId).innerHTML;
-      var dstr = JSON.stringify(this.getHtmlData());
+      // 标题会拼进 <title>、数据会拼进 <script>，统一转义，避免内容破坏离线文档结构
+      var safeTitle = String(title)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      var dstr = JSON.stringify(this.getHtmlData()).replace(/</g, "\\u003c");
       // const template = document.getElementById("content_views").innerHTML;
       // return getDocumentTemplates(title, resumecss, template);
       if (this.getCurrentI18nInstance().lang === 'zh') {
-        return getDocumentVueTemplates(title, resumecss, dstr);
+        return getDocumentVueTemplates(safeTitle, resumecss, dstr);
       } else {
-        return getDocumentVueTemplatesUS(title, resumecss, dstr);
+        return getDocumentVueTemplatesUS(safeTitle, resumecss, dstr);
       }
-      return getDocumentVueTemplates(title, resumecss, dstr);
+      return getDocumentVueTemplates(safeTitle, resumecss, dstr);
     }
   }
 

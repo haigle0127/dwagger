@@ -66,8 +66,8 @@ public class DwaggerAutoConfiguration {
         log.info("init CorsFilter...");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.addAllowedOrigin("*");
+        // 默认不携带凭据，避免 * 通配源与 allowCredentials 组合导致的安全风险
+        corsConfiguration.addAllowedOriginPattern("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.setMaxAge(10000L);
@@ -104,6 +104,9 @@ public class DwaggerAutoConfiguration {
                 authFilter.addRule(dwaggerProperties.getBasic().getInclude());
             }
         }
+        if (authFilter.isEnableBasicAuth()) {
+            warnInsecureBasicAuth(authFilter.getUserName(), authFilter.getPassword());
+        }
         FilterRegistrationBean<JakartaServletSecurityBasicAuthFilter> registration = new FilterRegistrationBean<>();
         registration.setDispatcherTypes(DispatcherType.REQUEST);
         registration.setFilter(authFilter);
@@ -134,6 +137,19 @@ public class DwaggerAutoConfiguration {
         registration.setFilter(p);
         registration.setOrder(AbstractSecurityFilter.SPRING_FILTER_ORDER - 1);
         return registration;
+    }
+    
+    /**
+     * Basic 认证使用默认口令或空口令时给出告警，避免带着弱口令上线
+     */
+    private void warnInsecureBasicAuth(String username, String password) {
+        if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+            log.warn("dwagger basic 认证已开启，但用户名或密码为空，文档接口将拒绝所有访问");
+        } else if (GlobalConstants.BASIC_DEFAULT_USERNAME.equals(username)
+                && GlobalConstants.BASIC_DEFAULT_PASSWORD.equals(password)) {
+            log.warn("dwagger basic 认证正在使用默认账号密码 {}/{}，请通过 dwagger.basic.username/password 修改",
+                    username, password);
+        }
     }
     
 }

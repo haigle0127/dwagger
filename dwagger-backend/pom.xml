@@ -132,6 +132,33 @@
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${dwagger-servlet.version}</version>
             </dependency>
+
+            <!-- 覆盖 Spring Boot 2.7.18 管理的旧版 Spring Framework，修复 CVE-2024-38808/38809/38816 等
+                 注意：Maven Central 上 Spring Framework 5.3.x 官方最新可用版本为 5.3.39，5.3.41 尚未发布 -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-framework-bom</artifactId>
+                <version>5.3.39</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- 覆盖 swagger-core 引入的旧版 Jackson，修复已知反序列化漏洞 -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>2.16.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- 覆盖 swagger-core 引入的旧版 SnakeYAML -->
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>2.3</version>
+            </dependency>
+
             <!--springdoc-openapi的Jar包引用-->
             <dependency>
                 <groupId>org.springdoc</groupId>
