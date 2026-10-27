@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.haigle.dwagger</groupId>
     <artifactId>dwagger</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <modules>
         <module>dwagger-core</module>
         <module>dwagger-openapi3-ui</module>
@@ -85,12 +85,12 @@
             <dependency>
                 <groupId>cn.haigle.dwagger</groupId>
                 <artifactId>dwagger-core</artifactId>
-                <version>0.0.3</version>
+                <version>0.0.4</version>
             </dependency>
             <dependency>
                 <groupId>cn.haigle.dwagger</groupId>
                 <artifactId>dwagger-openapi3-ui</artifactId>
-                <version>0.0.3</version>
+                <version>0.0.4</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->
             <dependency>
