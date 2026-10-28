@@ -10,9 +10,9 @@ dwagger 是 Spring Boot 的 OpenAPI 3 文档增强方案：springdoc 负责生�
 
 | 路径 | 说明 |
 | --- | --- |
-| `dwagger-ui/` | Vue 3 前端源码，构建产物在 `dist/` |
+| `dwagger-ui/` | Vue 3 前端源码，构建产物在 `dist/`（不入库，由 Maven 构建生成） |
 | `dwagger-backend/dwagger-core/` | 核心工具、扩展注解、过滤器 |
-| `dwagger-backend/dwagger-openapi3-ui/` | 只含前端静态资源的 jar（webjar），`/doc.html` 由它提供 |
+| `dwagger-backend/dwagger-openapi3-ui/` | 只含前端静态资源的 jar（webjar），构建时打包 `dwagger-ui/dist`，`/doc.html` 由它提供 |
 | `dwagger-backend/dwagger-openapi3-spring-boot-starter/` | Spring Boot 2.x（javax）Starter |
 | `dwagger-backend/dwagger-openapi3-jakarta-spring-boot-starter/` | Spring Boot 3.x / 4.x（jakarta）Starter |
 
@@ -317,33 +317,28 @@ dwagger:
 
 ## 12. 从源码构建
 
-环境：JDK 17+、Maven 3.9+、Node.js 20+、pnpm。
+环境：JDK 17+、Maven 3.9+、Node.js 20.19+（或 22.12+）、pnpm。
+
+一条命令即可完成前端构建、资源打包和全部模块安装：
 
 ```bash
-# 1. 构建后端（顺序：core -> ui -> starter）
-mvn -f dwagger-backend/pom.xml clean install
-
-# 2. 构建前端
-cd dwagger-ui
-pnpm install
-pnpm build
-
-# 3. 回填前端产物（dist 下全部文件，包括 .gz）
-rm -rf ../dwagger-backend/dwagger-openapi3-ui/src/main/resources/*
-cp -r dist/* ../dwagger-backend/dwagger-openapi3-ui/src/main/resources/
-
-# 4. 重新构建后端
-cd ..
 mvn -f dwagger-backend/pom.xml clean install
 ```
+
+`dwagger-openapi3-ui` 模块在 `generate-resources` 阶段会自动执行：
+
+1. `pnpm install`（工作目录 `dwagger-ui/`）
+2. `pnpm run build:SpringDocOpenApi`
+3. 把 `dwagger-ui/dist` 下的全部文件（含 `.gz`）打进 jar 的 `META-INF/resources/`
 
 验证接入：启动你自己的应用，打开 `http://localhost:8080/doc.html`（端口以实际配置为准）。
 
 注意：
 
-- 回填前先清空 `resources`，否则旧 hash 的 JS/CSS 会残留，jar 体积持续变大。
-- 前端产物文件名带 hash，回填后必须重新执行 Maven 构建，starter 才会带上新资源。
-- `pnpm build` 读取 `.env.production`，默认发布类型为 `SpringDocOpenApi`。
+- 前端构建产物（`dwagger-ui/dist`、jar 内的 `META-INF/resources`）不入库，每次构建自动生成，文件名带 hash 不会残留旧文件。
+- 只改后端、想跳过前端构建：`mvn -f dwagger-backend/pom.xml clean install -Ddwagger-skip-ui-build=true`，此时直接复用本地已有的 `dwagger-ui/dist`。
+- 单独调试前端：`cd dwagger-ui && pnpm dev`；只构建前端：`pnpm build`。
+- `pnpm run build:SpringDocOpenApi` 读取 `.env.production`，默认发布类型为 `SpringDocOpenApi`。
 
 ## 13. AI 代理接入检查清单
 

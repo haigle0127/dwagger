@@ -14,17 +14,60 @@
     <name>dwagger-openapi3-ui</name>
     <description>springdoc-openapi的Ui模块</description>
     <properties>
-        <!--<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>-->
-        <destDir>${project.build.outputDirectory}/META-INF/resources/</destDir>
+        <!-- 前端工程目录，产物不入库，构建时从这里取 dist -->
+        <dwagger-ui.dir>${project.basedir}/../../dwagger-ui</dwagger-ui.dir>
+        <!-- 只改后端时可跳过前端构建，需本地已有 dist -->
+        <dwagger-skip-ui-build>false</dwagger-skip-ui-build>
     </properties>
 
     <build>
         <resources>
+            <!-- 直接把前端产物打进 META-INF/resources，不再回填源码目录 -->
             <resource>
-                <directory>${project.basedir}/src/main/resources</directory>
+                <directory>${dwagger-ui.dir}/dist</directory>
                 <targetPath>META-INF/resources/</targetPath>
             </resource>
         </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>pnpm-install</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${dwagger-skip-ui-build}</skip>
+                            <workingDirectory>${dwagger-ui.dir}</workingDirectory>
+                            <executable>pnpm</executable>
+                            <arguments>
+                                <argument>install</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pnpm-build</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${dwagger-skip-ui-build}</skip>
+                            <workingDirectory>${dwagger-ui.dir}</workingDirectory>
+                            <executable>pnpm</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build:SpringDocOpenApi</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
 </project>

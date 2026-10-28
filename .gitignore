@@ -29,3 +29,6 @@ nbdist/
 .nb-gradle/
 
 /swagger-bootstrap-ui-front/.idea/
+
+### 前端构建产物（由 Maven 构建时生成，不入库） ###
+/dwagger-backend/dwagger-openapi3-ui/src/main/resources/
