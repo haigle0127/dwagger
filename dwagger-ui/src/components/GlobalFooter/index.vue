@@ -5,7 +5,7 @@
     </a-row>
     <div style="text-align: center" v-else-if="settings.enableFooter">
       <div class="copyright">TIM | Copyright
-        <icon-copyright /> 2026-dwagge
+        <icon-copyright /> 2026-dwagger
       </div>
     </div>
   </div>

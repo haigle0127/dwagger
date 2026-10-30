@@ -580,9 +580,15 @@ function searchKey(key) {
 
 function serviceChange(value, option) {
   //console("菜单下拉选择");
-  //id
-  let swaggerIns = swagger.value.selectInstanceByGroupId(value);
-  swagger.value.analysisApi(swaggerIns);
+  if (value === 'all') {
+    // 选择"全部"时，加载所有分组并跳回主页
+    swagger.value.loadAllInstances();
+    router.push({ path: "/home" });
+  } else {
+    //id
+    let swaggerIns = swagger.value.selectInstanceByGroupId(value);
+    swagger.value.analysisApi(swaggerIns);
+  }
   globalsStore.setDefaultService(value);
   //this.defaultServiceOption = value;
   //console(value);

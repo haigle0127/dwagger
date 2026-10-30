@@ -508,6 +508,8 @@ const langOptions = {
     params: 'リクエストパラメータ',
     noParams: 'パラメータなし',
     arrayHint: '配列パラメータ、複数の値はカンマで区切ってください',
+    arrayHintIndexed: '配列パラメータ、複数の値はカンマで区切ってください。送信時は添字で展開：{name}[0]=…、{name}[1]=…',
+    arrayHintRepeated: '配列パラメータ、複数の値はカンマで区切ってください。送信時は同名パラメータで展開：{name}=…、{name}=…',
     form: {
       upload: 'ファイルの選択',
       itemText: 'テキスト',

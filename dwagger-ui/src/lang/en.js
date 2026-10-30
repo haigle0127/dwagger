@@ -517,6 +517,8 @@ const langOptions = {
     params: 'Params',
     noParams: 'No parameters',
     arrayHint: 'Array, separate multiple values with commas',
+    arrayHintIndexed: 'Array, separate multiple values with commas. Sent as indexed params: {name}[0]=…, {name}[1]=…',
+    arrayHintRepeated: 'Array, separate multiple values with commas. Sent as repeated params: {name}=…, {name}=…',
     form:{
       upload:'Upload',
       itemText:'text',

@@ -508,6 +508,8 @@ const langOptions = {
     params: '请求参数',
     noParams: '无参数',
     arrayHint: '数组参数，多个值用英文逗号分隔',
+    arrayHintIndexed: '数组参数，多个值用英文逗号分隔，发送时按下标展开：{name}[0]=…、{name}[1]=…',
+    arrayHintRepeated: '数组参数，多个值用英文逗号分隔，发送时按同名参数展开：{name}=…、{name}=…',
     form:{
       upload:'选择文件',
       itemText:'文本',

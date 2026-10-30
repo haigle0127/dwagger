@@ -1477,6 +1477,9 @@ export default {
               type: "text",
               // 数组参数按多值处理
               isArray: param.type == "array",
+              // 数组/集合的 Java 类型与传参方式，由后端扩展提供
+              javaType: param.javaType || "",
+              arrayStyle: param.arrayStyle || "",
               // 是否必须
               require: param.require,
               // 文件表单域的target
@@ -1542,6 +1545,9 @@ export default {
               type: "text",
               // 数组参数按多值处理
               isArray: param.type == "array",
+              // 数组/集合的 Java 类型与传参方式，由后端扩展提供
+              javaType: param.javaType || "",
+              arrayStyle: param.arrayStyle || "",
               // 是否必须
               require: param.require,
               // 文件表单域的target
@@ -2121,7 +2127,9 @@ export default {
       if (!record.isArray) {
         return record.description;
       }
-      var hint = this.$t("debug.arrayHint");
+      // 按 Java 类型提示传参方式：List 用下标，数组/其他集合用同名重复参数
+      var hintKey = record.arrayStyle === "indexed" ? "debug.arrayHintIndexed" : "debug.arrayHintRepeated";
+      var hint = this.$t(hintKey, { name: record.name || "value" });
       return KUtils.strNotBlank(record.description)
         ? record.description + " (" + hint + ")"
         : hint;
@@ -2148,18 +2156,26 @@ export default {
       return text.split(",").map(item => item.trim()).filter(item => item !== "");
     },
     serializeDebugQuery(params) {
-      // 数组参数展开为重复参数，例如 createTime=a&createTime=b
+      // 数组参数按 Java 类型展开：List 用下标，数组/其他集合用重复参数
       var query = [];
       Object.keys(params || {}).forEach(key => {
         var value = params[key];
         var values = Array.isArray(value) ? value : [value];
-        values.forEach(item => {
+        var indexed = this.isIndexedArrayParam(key);
+        values.forEach((item, index) => {
           if (KUtils.strNotBlank(item)) {
-            query.push(encodeURIComponent(key) + "=" + encodeURIComponent(item));
+            var name = indexed ? key + "[" + index + "]" : key;
+            query.push(encodeURIComponent(name) + "=" + encodeURIComponent(item));
           }
         });
       });
       return query.join("&");
+    },
+    // 判断 query 参数是否按下标传参（Java List），后端未提供类型时保持原重复参数行为
+    isIndexedArrayParam(name) {
+      var forms = (this.urlFormData || []).concat(this.rawFormData || []);
+      var form = forms.find(item => item && item.name === name);
+      return !!(form && form.isArray && form.arrayStyle === "indexed");
     },
     debugFormDataParams(fileFlag) {
       // form-data类型的请求参数
@@ -2964,11 +2980,13 @@ export default {
         fullurl += "/";
       }
       fullurl += url;
-      // 数组参数展开为重复参数
+      // 数组参数按 Java 类型展开：List 用下标，数组/其他集合用重复参数
       var appendQuery = function (target, key, value) {
         var values = Array.isArray(value) ? value : [value];
-        values.forEach(function (item) {
-          target.push(key + "=" + KUtils.toString(item, ""));
+        var indexed = that.isIndexedArrayParam(key);
+        values.forEach(function (item, index) {
+          var name = indexed ? key + "[" + index + "]" : key;
+          target.push(name + "=" + KUtils.toString(item, ""));
         });
       };
       curlified.push("curl");

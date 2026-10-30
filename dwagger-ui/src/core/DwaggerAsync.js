@@ -460,6 +460,11 @@ SwaggerBootstrapUi.prototype.analysisSpringDocOpenApiGroupSuccess = function (da
     allGroupIds.push(g.id);
     that.instances.push(g);
   })
+  // 在开头插入"全部"选项
+  serviceOptions.unshift({
+    label: '全部',
+    value: 'all'
+  });
   // 赋值分组id
   if (KUtils.arrNotEmpty(that.instances)) {
     that.instances.forEach(inst => {
@@ -470,11 +475,9 @@ SwaggerBootstrapUi.prototype.analysisSpringDocOpenApiGroupSuccess = function (da
   this.serviceOptions = serviceOptions;
   globalsStore.setServiceOptions(serviceOptions)
   // that.$Vue.serviceOptions = serviceOptions;
-  if (serviceOptions.length > 0) {
-    // that.$Vue.defaultServiceOption = serviceOptions[0].value;
-    this.defaultServiceOption = serviceOptions[0].value;
-    globalsStore.setDefaultService(serviceOptions[0].value)
-  }
+  // 默认选中"全部"
+  this.defaultServiceOption = 'all';
+  globalsStore.setDefaultService('all')
 }
 
 /***
@@ -589,6 +592,11 @@ SwaggerBootstrapUi.prototype.analysisGroupSuccess = function (data) {
     allGroupIds.push(g.id);
     that.instances.push(g);
   })
+  // 在开头插入"全部"选项
+  serviceOptions.unshift({
+    label: '全部',
+    value: 'all'
+  });
   // 赋值分组id
   if (KUtils.arrNotEmpty(that.instances)) {
     that.instances.forEach(inst => {
@@ -600,11 +608,9 @@ SwaggerBootstrapUi.prototype.analysisGroupSuccess = function (data) {
   const globalsStore = useGlobalsStore()
   globalsStore.setServiceOptions(serviceOptions);
   // that.$Vue.serviceOptions = serviceOptions;
-  if (serviceOptions.length > 0) {
-    // that.$Vue.defaultServiceOption = serviceOptions[0].value;
-    this.defaultServiceOption = serviceOptions[0].value;
-    globalsStore.setDefaultService(serviceOptions[0].value);
-  }
+  // 默认选中"全部"
+  this.defaultServiceOption = 'all';
+  globalsStore.setDefaultService('all');
 
 }
 
@@ -636,17 +642,76 @@ SwaggerBootstrapUi.prototype.createGroupElement = function () {
         that.analysisApi(selectInstance);
       } else {
         // 默认加载第一个url
-        that.analysisApi(that.instances[0]);
+        that.loadAllInstances();
       }
     } else {
       // 默认加载第一个url
-      that.analysisApi(that.instances[0]);
+      that.loadAllInstances();
     }
   } else {
     // 默认加载第一个url
-    that.analysisApi(that.instances[0]);
+    that.loadAllInstances();
   }
 
+}
+
+/***
+ * 加载所有分组并合并菜单数据
+ */
+SwaggerBootstrapUi.prototype.loadAllInstances = function () {
+  var that = this;
+  var allMenuData = [];
+  var totalCount = that.instances.length;
+
+  if (totalCount === 0) {
+    return;
+  }
+
+  // 全局菜单项（主页/Authorize/Swagger Models/文档管理）只在第一个分组保留一份
+  function isGlobalMenu(menu) {
+    return menu.key === 'kmain' ||
+      menu.key.indexOf('Authorize') === 0 ||
+      menu.key.indexOf('swaggerModel') === 0 ||
+      menu.key.indexOf('documentManager') === 0;
+  }
+
+  // 递归加载每个实例，用 instance.load 标志判断该分组是否解析完成
+  function loadInstance(index) {
+    if (index >= totalCount) {
+      // 所有实例加载完成，合并菜单数据
+      const globalsStore = useGlobalsStore();
+      globalsStore.setCurrentMenuData(allMenuData);
+      that.menuData = allMenuData;
+      that.log('全部分组加载完成，菜单已合并');
+      return;
+    }
+
+    var instance = that.instances[index];
+    that.analysisApi(instance);
+
+    var checkInterval = setInterval(function () {
+      if (instance.load) {
+        clearInterval(checkInterval);
+        if (index === 0) {
+          allMenuData = allMenuData.concat(that.menuData || []);
+        } else {
+          allMenuData = allMenuData.concat((that.menuData || []).filter(m => !isGlobalMenu(m)));
+        }
+        loadInstance(index + 1);
+      }
+    }, 100);
+
+    // 超时保护，防止某个分组请求卡死后整体不再继续
+    setTimeout(function () {
+      if (!instance.load) {
+        clearInterval(checkInterval);
+        that.log('分组加载超时，跳过：' + instance.name);
+        loadInstance(index + 1);
+      }
+    }, 10000);
+  }
+
+  loadInstance(0);
 }
 
 /***
@@ -5544,6 +5609,17 @@ SwaggerBootstrapUi.prototype.assembleParameterOAS3 = function (m, swpinfo, requi
   if (KUtils.arrNotEmpty(requireArray)) {
     minfo.require = requireArray.includes(minfo.name);
   }
+  // dwagger 后端补充的 Java 类型与传参方式，OpenAPI 自身无法区分 List 和数组
+  minfo.javaType = KUtils.propValue('x-java-type', m, '');
+  minfo.arrayStyle = KUtils.propValue('x-java-array-style', m, '');
+  if (KUtils.checkUndefined(m['schema'])) {
+    if (!KUtils.strNotBlank(minfo.javaType)) {
+      minfo.javaType = KUtils.propValue('x-java-type', m['schema'], '');
+    }
+    if (!KUtils.strNotBlank(minfo.arrayStyle)) {
+      minfo.arrayStyle = KUtils.propValue('x-java-array-style', m['schema'], '');
+    }
+  }
   minfo.description = KUtils.replaceMultipLineStr(KUtils.propValue('description', m, ''));
   // add at 2019-12-10 09:20:08  判断请求参数类型是否包含format
   // https://github.com/xiaoymin/swagger-bootstrap-ui/issues/161
@@ -6991,6 +7067,10 @@ var SwaggerBootstrapUiParameter = function () {
   this.txtValue = null;
   // 枚举类型
   this.enum = null;
+  // 数组/集合的 Java 类型，例如 List<String>、String[]
+  this.javaType = null;
+  // 数组/集合的传参方式：indexed（下标）或 repeated（重复参数）
+  this.arrayStyle = null;
 
   // this.id = 'param' + Math.round(Math.random() * 1000000);
   this.id = uniqueId('param'); //  'param' + KUtils.randomMd5(); 使用 uniqueId 方法替代

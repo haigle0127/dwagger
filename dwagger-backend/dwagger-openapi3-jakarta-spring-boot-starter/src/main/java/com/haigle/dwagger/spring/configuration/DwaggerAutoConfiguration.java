@@ -5,6 +5,7 @@ import com.haigle.dwagger.extend.filter.basic.AbstractSecurityFilter;
 import com.haigle.dwagger.extend.filter.basic.JakartaServletSecurityBasicAuthFilter;
 import com.haigle.dwagger.spring.extension.DwaggerJakartaOperationCustomizer;
 import com.haigle.dwagger.spring.extension.DwaggerOpenApiCustomizer;
+import com.haigle.dwagger.spring.extension.DwaggerPropertyCustomizer;
 import com.haigle.dwagger.spring.filter.JakartaProductionSecurityFilter;
 import com.haigle.dwagger.spring.util.EnvironmentUtils;
 import jakarta.servlet.DispatcherType;
@@ -53,6 +54,15 @@ public class DwaggerAutoConfiguration {
     @ConditionalOnMissingBean
     public DwaggerJakartaOperationCustomizer dwaggerJakartaOperationCustomizer() {
         return new DwaggerJakartaOperationCustomizer();
+    }
+    
+    /**
+     * 给数组/集合属性补充 Java 类型与传参方式
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public DwaggerPropertyCustomizer dwaggerPropertyCustomizer() {
+        return new DwaggerPropertyCustomizer();
     }
     /**
      * 配置Cors

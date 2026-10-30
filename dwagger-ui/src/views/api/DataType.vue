@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="dwagger-data-type">
     <span v-if="!record.validateStatus">{{text==null||text==''?'string':text}}</span>
     <span v-else class="dwagger-request-validate-jsr">
       <a-tooltip placement="right">
@@ -9,7 +9,8 @@
         {{text}}
       </a-tooltip>
     </span>
-
+    <!-- 数组/集合的 Java 类型，OpenAPI 本身区分不了 List 和数组 -->
+    <span v-if="record.javaType" class="dwagger-java-type" :title="arrayHint">{{record.javaType}}</span>
   </div>
 </template>
 <script>
@@ -30,6 +31,18 @@ export default {
     return {
       validators: []
     };
+  },
+  computed: {
+    // 按类型给出传参方式提示：List 用下标，数组/其他集合用同名重复参数
+    arrayHint() {
+      if (!this.record || !this.record.javaType) {
+        return "";
+      }
+      const key = this.record.arrayStyle === "indexed"
+        ? "debug.arrayHintIndexed"
+        : "debug.arrayHintRepeated";
+      return this.$t(key, { name: this.record.name || "value" });
+    }
   },
   created() {
     this.intiValidator();
@@ -59,3 +72,25 @@ export default {
   }
 };
 </script>
+<style lang="less" scoped>
+.dwagger-data-type {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dwagger-java-type {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 10px;
+  background: var(--dwagger-primary-light);
+  color: var(--dwagger-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  cursor: help;
+}
+</style>
