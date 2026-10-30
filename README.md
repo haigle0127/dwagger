@@ -47,7 +47,7 @@ dwagger 是 Spring Boot 的 OpenAPI 3 文档增强方案：springdoc 负责生�
 <dependency>
     <groupId>cn.haigle.dwagger</groupId>
     <artifactId>dwagger-openapi3-jakarta-spring-boot-starter</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ dwagger 是 Spring Boot 的 OpenAPI 3 文档增强方案：springdoc 负责生�
 <dependency>
     <groupId>cn.haigle.dwagger</groupId>
     <artifactId>dwagger-openapi3-jakarta-spring-boot-starter</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <exclusions>
         <exclusion>
             <groupId>org.springdoc</groupId>
@@ -78,7 +78,7 @@ dwagger 是 Spring Boot 的 OpenAPI 3 文档增强方案：springdoc 负责生�
 <dependency>
     <groupId>cn.haigle.dwagger</groupId>
     <artifactId>dwagger-openapi3-spring-boot-starter</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
 </dependency>
 ```
 
@@ -86,10 +86,10 @@ dwagger 是 Spring Boot 的 OpenAPI 3 文档增强方案：springdoc 负责生�
 
 ```groovy
 // Spring Boot 4.x
-implementation 'cn.haigle.dwagger:dwagger-openapi3-jakarta-spring-boot-starter:0.0.4'
+implementation 'cn.haigle.dwagger:dwagger-openapi3-jakarta-spring-boot-starter:0.0.5'
 
 // Spring Boot 3.5.x
-implementation('cn.haigle.dwagger:dwagger-openapi3-jakarta-spring-boot-starter:0.0.4') {
+implementation('cn.haigle.dwagger:dwagger-openapi3-jakarta-spring-boot-starter:0.0.5') {
     exclude group: 'org.springdoc', module: 'springdoc-openapi-starter-webmvc-ui'
 }
 implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.9.1'
